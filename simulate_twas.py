@@ -201,12 +201,25 @@ genos_only, phenos_only, genos_plus, exprs_plus, phenos_plus, betas = \
     simulate(n_snps, n_genes, n_geno_samples, n_expr_samples, 
              beta1_h2, beta2_h2, beta3_h2, prevalence=0.01)
 
-for A in [genos_only, phenos_only, genos_plus, exprs_plus, phenos_plus]: 
-    print(A.shape)
-for beta in betas:
-    print(beta.shape)
 
+def namestr(obj, namespace):
+    """
+    
+    Examples:
+        >>> path = "some variable"
+        >>> namestr(path, globals())
+        ['path']
+    """
+    return [name for name in namespace if namespace[name] is obj]
 
+def print_shapes():
+    for A in [genos_only, phenos_only, genos_plus, exprs_plus, phenos_plus]:
+        print(f"{namestr(A, globals())[0]}.shape: {A.shape}")
+
+    for i, beta in enumerate(betas):
+        print(f"beta{i}.shape {beta.shape}")
+
+print_shapes()
 # genos_only, genos_plus -> input 
 # exprs_plus -> hidden 
 # phenos_only, phenos_plus -> ouput layer
