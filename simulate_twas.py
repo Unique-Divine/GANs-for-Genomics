@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+__author__ = "Jie Yuan"
+__github__ = "https://github.com/jyuan1322"
+
 import numpy as np
 from scipy.stats import norm
 
