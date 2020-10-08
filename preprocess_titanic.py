@@ -49,8 +49,12 @@ def preprocess_titanic(df=titanic_data):
         ['who', 'embark_town', 'embarked', 'adult_male', 'class'])
     df.dropna(inplace=True)
     df = df.astype(float)
+    
+    # Get column names
+    col_names = list(df.columns)
+
+    # Get feature and target matrix
     A = df.values
     X, Y = A[:, 1:], A[:, 0].reshape(-1,1) 
-    return X, Y
-
-X, 
+    
+    return X, Y, col_names
