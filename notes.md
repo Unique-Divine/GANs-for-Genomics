@@ -16,7 +16,6 @@ Additive assumption of GWAS
 
 
 
-
 ## what is the target?
 
 There should be phenotype of information.
