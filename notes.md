@@ -1,5 +1,7 @@
 # 
 
+
+
 ### PyVCF background info
 
 reference allele - most common allele at that spot in your data
@@ -17,7 +19,6 @@ Use integer encoding to capture the base at a given position. You can use someth
 You should probably track the reference allele. 
 
 Additive assumption of GWAS
-
 
 
 ### Target Variable
@@ -41,21 +42,20 @@ I need to narrow down relevant SNPs. In last meeting, we discussed a few methods
 
 **Blockers**: 
 1. I don't understand the p value threshold concept well enough to explain it. From the paper, it seems that higher $p \implies$ better feature.
-2. Which tests can be used to find variance? And, is the variance of a column vector all I need? This seems like a computationally inexpensive approach to shrinking down my set of features.
+2. Which tests can be used to find variance explained? And, is the variance of a column vector all I need? This seems like a computationally inexpensive approach to shrinking down my set of features.
 3. SelectKBest: This method is most likely best to use after a faster or more naive approach narrows the dataset. My hunch is that SelectKBest will take too long to run. Of course, I should try it out first. Also, exposing the target information to inform my feature selection could jeopardize the legitimacy of the predictive model. 
 
 **MVP** (SNP feature selection): Make a small feature matrix that uses approximately the same  number of SNPs as the reference paper.
-
 
 ## TODO
 - [ ] Make a small feature matrix that uses approximately the same  number of SNPs as the reference paper
   - [ ] Find out what that number is by reading the paper.
   - [ ] Record the number of SNPs used for each test in the paper as well.
   - [ ] Reduce the number of features down to the maximum number from the paper using variance threshold. 
-  - [ ]  
+- [ ] m
 
 
-              
+
+
 # Feature Selection: Lowering the SNP count
-
 
