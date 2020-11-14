@@ -21,20 +21,26 @@ class ML:
             print(f"{model_name} [{shorthand}]")
     
     def trainModel(self):
+        models = {"xgb": XGBClassifier(), 
+                  "logreg": LogisticRegression(),
+                  "mlp": None}
+         
+        # For sklearn-like ML models
         if self.model_type == "xgb" or "logreg":
-            self.model = models[model_type]
-            self.model.fit(X_train, Y_train)
+            self.model = models[self.model_type]
+            self.model.fit(self.X_train, self.Y_train)
 
         elif self.model_type == "mlp":
-
+            # TODO PyTorch dataloader
+            # TODO PyTorch training
         pass
 
     def makePrediction(self):
-        
-        models = {}
-        # For sklearn-like ML models
-        models["xgb"] = XGBClassifier()
-        models["logreg"] = LogisticRegression()
+        """[summary]
+
+        Returns:
+            Y_pred (np.ndarray): [description]
+        """
 
         # Sklearn-like models
         if self.model_type == "xgb" or "logreg":
@@ -44,11 +50,13 @@ class ML:
 
         # Neural Network models
         elif self.model_type == "mlp":
-            # TODO PyTorch dataloader
-            # TODO PyTorch training
+
             # TODO return Y_pred
             continue
 
+        return Y_pred
+
+    def crossValidate(self):
         pass
 
 
@@ -71,3 +79,5 @@ if __name__ == "__main__":
 # Improving Python speed
 # ------------------------
 # https://www.freecodecamp.org/news/if-you-have-slow-loops-in-python-you-can-fix-it-until-you-cant-3a39e03b6f35/
+
+

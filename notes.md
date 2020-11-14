@@ -49,8 +49,9 @@ I need to narrow down relevant SNPs. In last meeting, we discussed a few methods
 
 ## TODO
 - [ ] Make a small feature matrix that uses approximately the same  number of SNPs as the reference paper
-  - [ ] Find out what that number is by reading the paper.
-  - [ ] Record the number of SNPs used for each test in the paper as well.
+  - [x] Find out what that number is by reading the paper.
+  - [] Record the number of SNPs used for each test in the paper as well.
+  - [ ] Reduce the number of features to 100,000.
   - [ ] Reduce the number of features down to the maximum number from the paper using variance threshold. 
 - [ ] m
 
