@@ -1,3 +1,9 @@
+# 
+
+
+
+### PyVCF background info
+
 reference allele - most common allele at that spot in your data
 alt allele (list) - 
 
@@ -15,15 +21,42 @@ You should probably track the reference allele.
 Additive assumption of GWAS
 
 
+### Target Variable
 
-## what is the target?
+**Targets**: Phenotype information for the mice.
 
-There should be phenotype of information.
 There's another file in the github that gives a description. It's an Excel vile called SV...xls*. It has sample and phenotype info. 
 
-THere should be some sort of sample ID that has 0 or 1. You just need to match that sample ID to your matrix.
 
 
-## Notes
+### Notes, Brainstorming, and Planning
 
 The neural netowrk paper took random subsets of the SNPs available rather than using all of them each time. 
+
+#### Sun, Nov. 8
+
+I need to narrow down relevant SNPs. In last meeting, we discussed a few methods to accomplish this goal. 
+- p-values from logit
+- [statistical tests / SelectKBest](https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.SelectKBest.html)
+- [variance threshold](https://scikit-learn.org/stable/modules/feature_selection.html#:~:text=1.-,Removing%20features%20with%20low%20variance,same%20value%20in%20all%20samples.)
+
+**Blockers**: 
+1. I don't understand the p value threshold concept well enough to explain it. From the paper, it seems that higher $p \implies$ better feature.
+2. Which tests can be used to find variance explained? And, is the variance of a column vector all I need? This seems like a computationally inexpensive approach to shrinking down my set of features.
+3. SelectKBest: This method is most likely best to use after a faster or more naive approach narrows the dataset. My hunch is that SelectKBest will take too long to run. Of course, I should try it out first. Also, exposing the target information to inform my feature selection could jeopardize the legitimacy of the predictive model. 
+
+**MVP** (SNP feature selection): Make a small feature matrix that uses approximately the same  number of SNPs as the reference paper.
+
+## TODO
+- [ ] Make a small feature matrix that uses approximately the same  number of SNPs as the reference paper
+  - [x] Find out what that number is by reading the paper.
+  - [] Record the number of SNPs used for each test in the paper as well.
+  - [ ] Reduce the number of features to 100,000.
+  - [ ] Reduce the number of features down to the maximum number from the paper using variance threshold. 
+- [ ] m
+
+
+
+
+# Feature Selection: Lowering the SNP count
+
