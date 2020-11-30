@@ -1,6 +1,13 @@
-# 
+# Research Notes <!-- omit in toc -->
 
 
+- [Parsing and loading the data](#parsing-and-loading-the-data)
+  - [PyVCF background info](#pyvcf-background-info)
+  - [Target Variable](#target-variable)
+- [Notes, Brainstorming, and Planning](#notes-brainstorming-and-planning)
+- [TODO](#todo)
+
+## Parsing and loading the data
 
 ### PyVCF background info
 
@@ -29,11 +36,11 @@ There's another file in the github that gives a description. It's an Excel vile 
 
 
 
-### Notes, Brainstorming, and Planning
+## Notes, Brainstorming, and Planning
 
 The neural netowrk paper took random subsets of the SNPs available rather than using all of them each time. 
 
-#### Sun, Nov. 8
+#### Nov. 8
 
 I need to narrow down relevant SNPs. In last meeting, we discussed a few methods to accomplish this goal. 
 - p-values from logit
@@ -45,18 +52,16 @@ I need to narrow down relevant SNPs. In last meeting, we discussed a few methods
 2. Which tests can be used to find variance explained? And, is the variance of a column vector all I need? This seems like a computationally inexpensive approach to shrinking down my set of features.
 3. SelectKBest: This method is most likely best to use after a faster or more naive approach narrows the dataset. My hunch is that SelectKBest will take too long to run. Of course, I should try it out first. Also, exposing the target information to inform my feature selection could jeopardize the legitimacy of the predictive model. 
 
-**MVP** (SNP feature selection): Make a small feature matrix that uses approximately the same  number of SNPs as the reference paper.
+**MVP** (SNP feature selection): Make a small feature matrix that uses approximately the same  number of SNPs as the reference paper. Done. 
+
+#### Nov. 26 - 30
+
+There are different numbers of SNPs between the two groups of samples. 
+
 
 ## TODO
-- [ ] Make a small feature matrix that uses approximately the same  number of SNPs as the reference paper
+- [x] Make a small feature matrix that uses approximately the same  number of SNPs as the reference paper
   - [x] Find out what that number is by reading the paper.
-  - [] Record the number of SNPs used for each test in the paper as well.
-  - [ ] Reduce the number of features to 100,000.
-  - [ ] Reduce the number of features down to the maximum number from the paper using variance threshold. 
-- [ ] m
-
-
-
-
-# Feature Selection: Lowering the SNP count
-
+  - [x] Record the number of SNPs used for each test in the paper as well.
+  - [x] Reduce the number of features to 100,000.
+- [ ] Benchmark models
