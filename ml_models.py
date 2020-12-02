@@ -1,4 +1,8 @@
-from sklearn.linear_model import LogisticRegression
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import SGDClassifier
 from xgboost import XGBClassifier 
 
 class ML:
@@ -9,33 +13,46 @@ class ML:
         self.model_type = model_type
         self.X_train, self.Y_train = None, None
         self.X_test, self.Y_test = None, None
+        self.Y_pred = None
 
-    def printAvailableModels(self) -> None:
+    def printAvailableModels(self):
         print("model_name [shorthand]\n")
-        models = {"Logistic regression": "logreg"
-                  "XGBoost classifier": "xgb"
+        models = {"SVM Classifier": "svc",
+                  "XGBoost classifier": "xgb",
                   "Multilayer perceptron": "mlp"}
-
-        for idx, model_name in enumerate(models):
+    
+        for model_name in models:
             shorthand = models[model_name]
             print(f"{model_name} [{shorthand}]")
     
-    def trainModel(self):
-        models = {"xgb": XGBClassifier(), 
-                  "logreg": LogisticRegression(),
-                  "mlp": None}
-         
+    def setTrainTestSplits(self, test_size=0.3, random_state=7):
+        self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(
+            self.X, self.Y, test_size=test_size, random_state=random_state)
+
+    def trainClassifier(self):
+        shallow_models = {"xgb": XGBClassifier(), 
+                          "svc": SGDClassifier(),}
+
         # For sklearn-like ML models
-        if self.model_type == "xgb" or "logreg":
-            self.model = models[self.model_type]
+        if self.model_type == "xgb" or "svc":
+            self.model = shallow_models[self.model_type]
+            self.model.fit(self.X_train, self.Y_train)
+        elif self.model_type == "custom":
             self.model.fit(self.X_train, self.Y_train)
 
         elif self.model_type == "mlp":
+            model_name = input("")
             # TODO PyTorch dataloader
             # TODO PyTorch training
+
+            # save model architecture
+
+            # save model weights
+            raise NotImplementedError
+        
         pass
 
-    def makePrediction(self):
+    def makePrediction(self) -> np.ndarray:
         """[summary]
 
         Returns:
@@ -43,21 +60,23 @@ class ML:
         """
 
         # Sklearn-like models
-        if self.model_type == "xgb" or "logreg":
-            self.model = models[self.model_type]
-            self.model.fit(self.X_train, self.Y_train)
-            Y_pred = self.model.predict(self.X_test)  
+        if self.model_type == "xgb" or "svc":
+            Y_pred = self.model.predict(self.X_test)
 
         # Neural Network models
         elif self.model_type == "mlp":
 
             # TODO return Y_pred
-            continue
+            Y_pred = None
+        else:
+            raise Exception("Invalid model_type attribute.")
 
         return Y_pred
 
     def crossValidate(self):
-        pass
+        # TODO cross validate sklearn models
+        # TODO cross validate NNs
+        raise NotImplementedError
 
 
 def main():
