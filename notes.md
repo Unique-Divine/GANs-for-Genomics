@@ -59,9 +59,51 @@ I need to narrow down relevant SNPs. In last meeting, we discussed a few methods
 There are different numbers of SNPs between the two groups of samples. 
 
 
+#### 
+
+motivation fo GWAS - finding associations in genome
+visualizations - manhattan plot
+metrics 
+
+intro to GANs
+motivation for using them
+
+dataset Dawley Rats
+
+rough summary of project ^^^
+
+
+
+Importance of undergrad research:
+
+- seems intimidating at first
+- more latitude to make mistakes and waste your time
+- gives you a head start: longer you do it, better you get
+
+look for statistics / sources to bolster claims:
+
+
+----
+
+Jie Yuan 8:24 PM
+
+https://www.cs.columbia.edu/calendar/
+
+
+Jie Yuan 8:32 PM
+
+https://www.tandfonline.com/doi/abs/10.1080/00220612.1982.10671594
+https://journals.sagepub.com/doi/abs/10.3102/0002831213482038
+
+
+Jie Yuan 8:38 PM
+
+map/ped
+
+
 ## TODO
 - [x] Make a small feature matrix that uses approximately the same  number of SNPs as the reference paper
   - [x] Find out what that number is by reading the paper.
   - [x] Record the number of SNPs used for each test in the paper as well.
   - [x] Reduce the number of features to 100,000.
-- [ ] Benchmark models
+- [x] Benchmark models

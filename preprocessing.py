@@ -246,7 +246,8 @@ class Preprocessing:
         
         Args:
             coefs (list[np.ndarray]): A list of the coefficients calculated
-                during batch processing. 
+                during batch processing. The array elements batch-length
+                1D arrays of coefficients. 
         Returns:
             coefficients (np.ndarray): The saved coefficients. 
         """
@@ -262,6 +263,21 @@ class Preprocessing:
             print("Coefficients have already been saved.")
             
     def getCoefs(self, group="C", coefs_list=None, verbose=False) -> np.ndarray:
+        """[summary]
+
+        Args:
+            group (str, optional): "C" for Charles River data, "H" for Harlan,
+                "both" for both. Defaults to "C".
+            coefs_list (list[np.ndarray], optional): A list of coefficients 
+                outside of the default groups. Defaults to None.
+            verbose (bool, optional): Toggles print statements. Defaults to False.
+
+        Raises:
+            Exception: [description]
+
+        Returns:
+            coefs (np.ndarray): 1D array of the feature selection coefficients.
+        """
         if group == "C":
             file_name = "coefficients_C.csv"
         elif group == "H":
@@ -372,8 +388,8 @@ if __name__ == "__main__":
     try:
         # main()
         pp = Preprocessing() 
-        pp.getCoefs(group="C", coefs_list=None, verbose=True).shape
-        Xs, SNP_names = splitX(splits=100)
+        coefs = pp.getCoefs(group="C", coefs_list=None, verbose=True)
+        Xs, SNP_names = pp.splitX(splits=100)
         print(len(coefs))
         
     except KeyboardInterrupt:

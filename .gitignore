@@ -1,9 +1,10 @@
 **checkpoint.ipyn**
 **checkpoint**
 **checkpoint.ipy**
+**_pycache_**
 
 gtTypes.csv
-gtTypes_C.csv
 recordAttributes.csv
-recordAttributes_C.csv
 
+gtTypes**.csv
+recordAttributes**.csv
