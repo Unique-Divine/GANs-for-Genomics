@@ -83,19 +83,23 @@ def getCommonSNPIndices(group="C", save=False, verbose=True):
             pd.Series(indices).to_csv("data/H/common_indices_H", index=False)
     return np.array(indices)
 
-def main ():
-    print("\n---------------")
-    printCommonSNPCounts()
-    print("---------------")
+def main (verbose=True):
+    if verbose: 
+        print("\n---------------")
+        printCommonSNPCounts()
+        print("---------------")
     
-    print("Charles River")
-    print("---------------")    
-    getCommonSNPIndices("C", save=True)
-    print("---------------")
-    
-    print("Harlan River")
-    getCommonSNPIndices("H", save=True)
-    print("---------------")
+        print("Charles River")
+        print("---------------")    
+        getCommonSNPIndices("C", save=True)
+        print("---------------")
+        
+        print("Harlan River")
+        getCommonSNPIndices("H", save=True)
+        print("---------------")
+    else:
+        getCommonSNPIndices("C", save=True)
+        getCommonSNPIndices("H", save=True)
 
 if __name__ == "__main__":
     try:
