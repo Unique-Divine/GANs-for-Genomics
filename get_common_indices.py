@@ -1,27 +1,26 @@
-# import PyTorch
-import torch
 # standard DS stack
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns; sns.set()
 import pandas as pd
 # other
 import warnings
 warnings.filterwarnings('ignore')
 import time
 
-
 def getSNPNames(group="C", timeit=False):
     if group == "C":
-        path = "data/C/recordAttributes_C.csv"
+        pass
     else:
         assert group == "H", "Invalid value for `group`."
+    
     start_time = time.time()
     SNP_name_list = []
     if group == "C":
-        csvBatchSize = 2000 # 215,000 elements
+        # There are about 215,000 SNPs. 
+        # You should set csvBatchSize * maxIteration > 215,000
+        csvBatchSize = 2000 
         maxIteration = 130
-        
+        path = "data/C/recordAttributes_C.csv"
+
         for csvBatch_idx, csvBatch in enumerate(
             pd.read_csv(path, chunksize=csvBatchSize)):
             current_time = time.time() - start_time
@@ -64,6 +63,9 @@ def getCommonSNPIndices(group="C", save=False, verbose=True):
         SNP_names = getSNPNames("C")
     elif group == "H":
         SNP_names = getSNPNames("H")
+    else:
+        SNP_names = None
+        assert SNP_names, "Invalid group argument."
     start_time = time.time()
 
     indices = []
@@ -84,6 +86,14 @@ def getCommonSNPIndices(group="C", save=False, verbose=True):
     return np.array(indices)
 
 def main (verbose=True):
+    """The Charles River and Harlan River datasets don't contain the same SNPs.
+    This script finds the SNPs for which the two datasets overlap and saves the
+    indices corresponding this overlap in two .csv files. After running this
+    script, run `get_common_Xs.py`.
+
+    Args:
+        verbose (bool, optional): Toggles print statements. Defaults to True.
+    """
     if verbose: 
         print("\n---------------")
         printCommonSNPCounts()
