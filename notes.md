@@ -4,8 +4,12 @@
 - [Parsing and loading the data](#parsing-and-loading-the-data)
   - [PyVCF background info](#pyvcf-background-info)
   - [Target Variable](#target-variable)
-- [Notes, Brainstorming, and Planning](#notes-brainstorming-and-planning)
 - [TODO](#todo)
+- [Google Colab](#google-colab)
+  - [Pytorch in Colab?](#pytorch-in-colab)
+  - [`requirements.txt` in virtual environment](#requirementstxt-in-virtual-environment)
+  - [How to enter multiple shell commands in one line](#how-to-enter-multiple-shell-commands-in-one-line)
+- [Chronological Research Notes](#chronological-research-notes)
 
 ## Parsing and loading the data
 
@@ -36,7 +40,46 @@ There's another file in the github that gives a description. It's an Excel vile 
 
 
 
-## Notes, Brainstorming, and Planning
+
+
+
+## TODO
+
+---
+
+## Google Colab
+
+
+### Pytorch in Colab?
+
+Simply `import torch` in one of the cells. PyTorch is pre-installed.
+
+### `requirements.txt` in virtual environment
+
+To install from a `requirements.txt` file (with pip):
+1. `cd` to the directory `requirements.txt` is located.
+2. Make sure your virtual environment is activated if you're using one.
+3. Run: `pip install -r requirements.txt` in the shell.
+
+
+Create a `requirements.txt`:
+1. At the shell, run: `pip freeze > requirements.txt`. If pip installation conflicts are causing problems, try `conda install -r requirements`. 
+
+### How to enter multiple shell commands in one line
+
+- Use `&&` to execute successive commands. In `[command 1] && [command 2]`, the 2nd command only executes if the previous one succeeds.
+- To pipe the outputs (stdout) of one comand into the input of another, use `|`. Use `|&` to pipe both the `stdout` and `stderr` into the standard input
+- `[LHS] || [RHS]` executes RHS of only if the LHS fails. 
+- `;` executes RHS regardless of whether LHS succeeds. Note, if `set -e` was previously invoked, `bash` will raise an error. 
+
+[Maxim Egorushkin (reference)](https://stackoverflow.com/questions/5130847/running-multiple-commands-in-one-line-in-shell)
+
+[bash docs](https://www.gnu.org/software/bash/manual/bash.html#Lists)
+
+
+---
+
+## Chronological Research Notes
 
 The neural netowrk paper took random subsets of the SNPs available rather than using all of them each time. 
 
@@ -99,11 +142,3 @@ https://journals.sagepub.com/doi/abs/10.3102/0002831213482038
 Jie Yuan 8:38 PM
 
 map/ped
-
-
-## TODO
-- [x] Make a small feature matrix that uses approximately the same  number of SNPs as the reference paper
-  - [x] Find out what that number is by reading the paper.
-  - [x] Record the number of SNPs used for each test in the paper as well.
-  - [x] Reduce the number of features to 100,000.
-- [x] Benchmark models
