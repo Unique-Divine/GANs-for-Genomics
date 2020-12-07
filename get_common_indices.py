@@ -9,8 +9,10 @@ import time
 def getSNPNames(group="C", timeit=False):
     if group == "C":
         pass
+    elif group == "H":
+        pass
     else:
-        assert group == "H", "Invalid value for `group`."
+        raise ValueError(f"Group parameter must be 'C' or 'H', not '{group}'.")
     
     start_time = time.time()
     SNP_name_list = []
@@ -65,7 +67,7 @@ def getCommonSNPIndices(group="C", save=False, verbose=True):
         SNP_names = getSNPNames("H")
     else:
         SNP_names = None
-        assert SNP_names, "Invalid group argument."
+        raise ValueError(f"Group parameter must be 'C' or 'H', not '{group}'.")
     start_time = time.time()
 
     indices = []

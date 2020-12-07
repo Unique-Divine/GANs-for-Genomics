@@ -1,19 +1,58 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import SGDClassifier
-from xgboost import XGBClassifier 
+from sklearn import model_selection
+from sklearn import linear_model
+import xgboost as xgb 
 
 class ML:
-    def __init__(self, X, Y, model_type) -> None:
+    def __init__(self, X, Y, model_type=None) -> None:
         self.X = X
         self.Y = Y
-        self.model = None
         self.model_type = model_type
-        self.X_train, self.Y_train = None, None
-        self.X_test, self.Y_test = None, None
+        self.model = None
+        self.setTrainTestSplits()
         self.Y_pred = None
+
+    @property
+    def X_train(self):
+        return self._X_train
+    @X_train.setter
+    def X_train(self, x):
+        self._X_train = x
+    @X_train.deleter
+    def X_train(self):
+        del self._X_train
+
+    @property
+    def Y_train(self):
+        return self._Y_train
+    @Y_train.setter
+    def Y_train(self, y):
+        self._Y_train = y
+    @Y_train.deleter
+    def Y_train(self):
+        del self._Y_train
+
+    @property
+    def X_test(self):
+        return self._X_test
+    @X_test.setter
+    def X_test(self, x):
+        self._X_test = x
+    @X_test.deleter
+    def X_test(self):
+        del self._X_test
+
+    @property
+    def Y_test(self):
+        return self._Y_test
+    @Y_test.setter
+    def Y_test(self, y):
+        self._Y_test = y
+    @X_test.deleter
+    def X_test(self):
+        del self._Y_test
 
     def printAvailableModels(self):
         print("model_name [shorthand]\n")
@@ -24,21 +63,23 @@ class ML:
         for model_name in models:
             shorthand = models[model_name]
             print(f"{model_name} [{shorthand}]")
-    
-    def setTrainTestSplits(self, test_size=0.3, random_state=7):
-        self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(
-            self.X, self.Y, test_size=test_size, random_state=random_state)
+
+    def setTrainTestSplits(self, test_size=0.25, random_state=7):
+        self._X_train, self._X_test, self._Y_train, self._Y_test = \
+            model_selection.train_test_split(self.X, self.Y, 
+                                             test_size=test_size, 
+                                             random_state=random_state)
 
     def trainClassifier(self):
-        shallow_models = {"xgb": XGBClassifier(), 
-                          "svc": SGDClassifier(),}
+        shallow_models = {"xgb": xgb.XGBClassifier(), 
+                          "svc": linear_model.SGDClassifier(),}
 
         # For sklearn-like ML models
         if self.model_type == "xgb" or "svc":
             self.model = shallow_models[self.model_type]
-            self.model.fit(self.X_train, self.Y_train)
+            self.model.fit(self._X_train, self._Y_train)
         elif self.model_type == "custom":
-            self.model.fit(self.X_train, self.Y_train)
+            self.model.fit(self._X_train, self._Y_train)
 
         elif self.model_type == "mlp":
             model_name = input("")
@@ -61,7 +102,7 @@ class ML:
 
         # Sklearn-like models
         if self.model_type == "xgb" or "svc":
-            Y_pred = self.model.predict(self.X_test)
+            Y_pred = self.model.predict(self._X_test)
 
         # Neural Network models
         elif self.model_type == "mlp":
