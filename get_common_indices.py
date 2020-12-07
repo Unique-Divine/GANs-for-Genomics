@@ -1,7 +1,7 @@
-# standard DS stack
+#!/usr/bin/python
+
 import numpy as np
 import pandas as pd
-# other
 import warnings
 warnings.filterwarnings('ignore')
 import time
