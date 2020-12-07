@@ -38,17 +38,25 @@ Additive assumption of GWAS
 
 There's another file in the github that gives a description. It's an Excel vile called SV...xls*. It has sample and phenotype info. 
 
-
-
-
-
-
 ## TODO
+
+1. [ ] Recover the X_common for the C and H datasets.
+2. [ ] Perform feature selection to get X_r
+3. [ ] Train GANs on X_r & Y
+4. [ ] Evaluate each model while the GANs train 
+- Neural Networks 
+  - [ ] Implement data loader
+  - [ ] Implement network architecture
+  - [ ] Write a NN training method
+4. [ ] Generate new samples to improve dataset quality
+5. [ ] Evaluate models again
 
 ---
 
 ## Google Colab
 
+- [ ] finish mining [this](https://www.tutorialspoint.com/google_colab/google_colab_executing_external_python_files.htm) 
+- [ ] mine [this](https://zerowithdot.com/colab-workspace/)
 
 ### Pytorch in Colab?
 
