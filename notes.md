@@ -47,9 +47,10 @@ There's another file in the github that gives a description. It's an Excel vile 
 - Neural Networks 
   - [ ] Implement data loader
   - [ ] Implement network architecture
+  > - "Very simple. Just keep adding layers until the test error does not improve anymore." - Yoshu Bengio
   - [ ] Write a NN training method
-4. [ ] Generate new samples to improve dataset quality
-5. [ ] Evaluate models again
+1. [ ] Generate new samples to improve dataset quality
+2. [ ] Evaluate models again
 
 ---
 

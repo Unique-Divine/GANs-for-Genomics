@@ -66,7 +66,7 @@ class ML:
             shorthand = models[model_name]
             print(f"{model_name} [{shorthand}]")
 
-    def setTrainTestSplits(self, test_size=0.25, random_state=7) -> list[np.ndarray]:
+    def getTrainTestSplits(self, test_size=0.25, random_state=7) -> list:
         self._X_train, self._X_test, self._Y_train, self._Y_test = \
             model_selection.train_test_split(self.X, self.Y, 
                                              test_size=test_size, 
