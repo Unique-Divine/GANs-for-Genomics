@@ -1,4 +1,5 @@
 import numpy as np
+from numpy import testing
 import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
@@ -92,21 +93,35 @@ def get_X_r(group: str, data_path="data", timeit=True) -> None:
                     header = False)
                 save_idx += 1
 
-    def test_common_X_validity(group, data_path="data"):
-        Xrs = []
-        if group == "C":
-            for i in range(107):
-                X_path = os.path.join(data_path, group, 'Xrs', f"{i}.csv")
-                Xr = pd.read_csv(X_path)
-                print(Xr.head())
-                print(Xr.columns)
-                print(Xr.index)
-                break
-                Xrs.append(Xr)
+def test_common_X_validity(group, data_path="data"):
+    common_Xs = []
+    if group == "C":
+        for i in range(107):
+            X_path = os.path.join(data_path, group, 'common_Xs', f"{i}.csv")
+            common_X = pd.read_csv(X_path, index_col=False).values
+            common_Xs.append(common_X)
+        X_common = np.vstack(common_Xs)
+        pd.DataFrame(X_common).to_csv(
+            "data/C/X_common_C",
+            index = False, 
+            header = False)
+
+    else: # group == "H"
+        for i in range(114):
+            X_path = os.path.join(data_path, group, 'common_Xs', f"{i}.csv")
+            common_X = pd.read_csv(X_path, index_col=False).values
+            common_Xs.append(common_X)
+        X_common = np.vstack(common_Xs)
+        pd.DataFrame(X_common).to_csv(
+            "data/H/X_common_H",
+            index = False, 
+            header = False)
 
 def main():
     # get_X_r("C")
-    get_X_r("H")
+    # get_X_r("H")
+    test_common_X_validity("C")
+    test_common_X_validity("H")
 
 if __name__ == "__main__":
     try:
