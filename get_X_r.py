@@ -62,7 +62,7 @@ def get_X_r(group: str, data_path="data", timeit=True) -> None:
             
             X_path = os.path.join(
                 data_path, group, f"gtTypes_{group} ({X_batch_idx}).csv")
-            X_batch = pd.read_csv(X_path).values
+            X_batch = pd.read_csv(X_path, index_col=False).values
             
             current_time = time.time() - start_time
             if (X_batch_idx % 5 == 0) and (timeit):
@@ -70,10 +70,14 @@ def get_X_r(group: str, data_path="data", timeit=True) -> None:
                     + f"Time: {current_time:.2f} s\t"
                     + "SNPs per second: {:.2f}".format(
                         (X_batch.shape[0] * X_batch_idx) / current_time))
+            if X_batch_idx == 0:
+                starting_batch_idx = 0
+                final_batch_idx = X_batch.shape[0]
+            else:
+                starting_batch_idx = final_batch_idx
+                final_batch_idx += X_batch.shape[0]
 
-            batch_indices = np.arange(
-                start = X_batch_idx * X_batch.shape[0],  
-                stop = (X_batch_idx + 1) * X_batch.shape[0] )
+            batch_indices = np.arange(starting_batch_idx, final_batch_idx)                        
             assert np.abs(batch_indices[4] - batch_indices[5]) == 1
             keepers = np.array([batch_idx for batch_idx in batch_indices \
                 if (batch_idx in common_indices)])
@@ -87,6 +91,7 @@ def get_X_r(group: str, data_path="data", timeit=True) -> None:
                     index = False, 
                     header = False)
                 save_idx += 1
+
     def test_common_X_validity(group, data_path="data"):
         Xrs = []
         if group == "C":
@@ -94,6 +99,8 @@ def get_X_r(group: str, data_path="data", timeit=True) -> None:
                 X_path = os.path.join(data_path, group, 'Xrs', f"{i}.csv")
                 Xr = pd.read_csv(X_path)
                 print(Xr.head())
+                print(Xr.columns)
+                print(Xr.index)
                 break
                 Xrs.append(Xr)
 
