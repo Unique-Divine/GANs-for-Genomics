@@ -60,7 +60,8 @@ def get_X_r(group: str, data_path="data", timeit=True) -> None:
         start_time = time.time()
         for X_batch_idx in range(114):
             
-            X_path = os.path.join(data_path, group, f"gt_{group}.csv")
+            X_path = os.path.join(
+                data_path, group, f"gtTypes_{group} ({X_batch_idx}).csv")
             X_batch = pd.read_csv(X_path).values
             
             current_time = time.time() - start_time
@@ -76,7 +77,7 @@ def get_X_r(group: str, data_path="data", timeit=True) -> None:
             assert np.abs(batch_indices[4] - batch_indices[5]) == 1
             keepers = np.array([batch_idx for batch_idx in batch_indices \
                 if (batch_idx in common_indices)])
-            keepers = (keepers % 2000).astype(int)
+            keepers = (keepers % X_batch.shape[0]).astype(int)
             common_X_batch = X_batch[keepers]
             
             if common_X_batch.size > 0: 
@@ -86,9 +87,18 @@ def get_X_r(group: str, data_path="data", timeit=True) -> None:
                     index = False, 
                     header = False)
                 save_idx += 1
+    def test_common_X_validity(group, data_path="data"):
+        Xrs = []
+        if group == "C":
+            for i in range(107):
+                X_path = os.path.join(data_path, group, 'Xrs', f"{i}.csv")
+                Xr = pd.read_csv(X_path)
+                print(Xr.head())
+                break
+                Xrs.append(Xr)
 
 def main():
-    get_X_r("C")
+    # get_X_r("C")
     get_X_r("H")
 
 if __name__ == "__main__":
