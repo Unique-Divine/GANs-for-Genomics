@@ -7,7 +7,7 @@ import time
 import os
 
 
-def get_X_r(group: str, data_path="data", timeit=True) -> None:
+def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
     if group in ["C", "H"]:
         pass
     else:
@@ -93,7 +93,7 @@ def get_X_r(group: str, data_path="data", timeit=True) -> None:
                     header = False)
                 save_idx += 1
 
-def test_common_X_validity(group, data_path="data"):
+def combine_common_Xs(group, data_path="data"):
     common_Xs = []
     if group == "C":
         for i in range(107):
@@ -102,7 +102,7 @@ def test_common_X_validity(group, data_path="data"):
             common_Xs.append(common_X)
         X_common = np.vstack(common_Xs)
         pd.DataFrame(X_common).to_csv(
-            "data/C/X_common_C",
+            "data/C/X_common_C.csv",
             index = False, 
             header = False)
 
@@ -113,15 +113,43 @@ def test_common_X_validity(group, data_path="data"):
             common_Xs.append(common_X)
         X_common = np.vstack(common_Xs)
         pd.DataFrame(X_common).to_csv(
-            "data/H/X_common_H",
+            "data/H/X_common_H.csv",
             index = False, 
             header = False)
 
+def test_X_common():
+    c_path = "data/C/X_common_C.csv"
+    h_path = "data/H/X_common_H.csv" 
+    print(f"Loading values from '{c_path}'...")
+    X_common_C = pd.read_csv(c_path)
+    print(f"Loading values from '{h_path}'...")
+    X_common_H = pd.read_csv(h_path)
+
+    print(f"Shape check: {X_common_C.shape,  X_common_H.shape}")
+    
+    print(f"Saving 'data/X_common (C).csv'")
+    X_common = X_common_C[X_common_C.iloc[:,0].isin(X_common_H.iloc[:,0])]
+    X_common.to_csv("data/X_common (C).csv", index = False, header = False)
+    del X_common
+
+    print(f"Saving 'data/X_common (H).csv'")
+    X_common = X_common_H[X_common_H.iloc[:,0].isin(X_common_C.iloc[:,0])]
+    X_common.to_csv("data/X_common (H).csv", index = False, header = False)
+
+def make_X_common():
+    X_common_C = pd.read_csv("data/X_common (C).csv")
+    X_common_H = pd.read_csv("data/X_common (H).csv")
+    X_common = np.hstack([X_common_C.values, X_common_H.values])
+    pd.DataFrame(X_common).to_csv(
+        "data/X_common.csv", index = False, header = False)
+
 def main():
-    # get_X_r("C")
-    # get_X_r("H")
-    test_common_X_validity("C")
-    test_common_X_validity("H")
+    get_common_Xs("C")
+    get_common_Xs("H")
+    combine_common_Xs("C")
+    combine_common_Xs("H")
+    test_X_common()
+    make_X_common()
 
 if __name__ == "__main__":
     try:
