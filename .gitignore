@@ -3,6 +3,8 @@
 **checkpoint.ipy**
 **_pycache_**
 
+data/**
+
 gt_C.csv
 gtTypes.csv
 recordAttributes.csv
