@@ -2,7 +2,8 @@
 **checkpoint**
 **checkpoint.ipy**
 **pycache**
-**.pyc
+__pycache__*
+ctgan/__pycache__/**
 
 gt_C.csv
 gtTypes.csv
