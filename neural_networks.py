@@ -42,16 +42,16 @@ class NNConstants:
     def D_OUT(self):
         self._D_OUT = 1
 
-class FeedForwardNN:
+class FFNN:
 
     def __init__(self, X: np.ndarray, Y: np.ndarray, constants: NNConstants):
-        """
+        """ Feed-Forward Neural Network
         Args:
             X (np.ndarray): Feature matrix 
             Y (np.ndarray): Target matrix
             constants (NNConstants): Constants that speficy the NN architecture.
         """
-        ml = ml_models.ML(X, Y, model_type = "mlp")
+        ml = ml_models.ML(X, Y, model_type = "Architecture")
         ttsplits = ml.getTrainTestSplits()
         self.X_train, self.X_test, self.Y_train, self.Y_test = ttsplits
         self.X, self.Y = ml.X, ml.Y
@@ -82,7 +82,7 @@ class FeedForwardNN:
         return device
     
     def set_network(self):
-        network = FeedForwardNN.MLP(self.constants)
+        network = FFNN.Architecture(self.constants)
         return network
 
     def set_optimizer(self):
@@ -90,7 +90,7 @@ class FeedForwardNN:
         return optimizer
 
     def set_loss_fn(self):
-        loss_fn = nn.MSELoss()
+        loss_fn = nn.NLLLoss()
         return loss_fn
 
     class TabularDataset(torch.utils.data.Dataset): # inherit from torch
@@ -100,14 +100,14 @@ class FeedForwardNN:
             # data loading
             if train == True:
                 # training batch
-                self.X = torch.from_numpy(X_train.astype(np.float32))
+                self.X = torch.from_numpy(X_train.astype(float))
                 self.Y = torch.from_numpy(
-                    Y_train.reshape(-1,1).astype(np.float32))
+                    Y_train.reshape(-1,1).astype(float))
             else: 
                 # testing batch
-                self.X = torch.from_numpy(X_test.astype(np.float32))
+                self.X = torch.from_numpy(X_test.astype(float))
                 self.Y = torch.from_numpy(
-                    Y_test.reshape(-1,1).astype(np.float32))
+                    Y_test.reshape(-1,1).astype(float))
 
             if self.X.shape[0] == self.Y.shape[0]:
                 self.n_samples = self.X.shape[0]
@@ -133,9 +133,9 @@ class FeedForwardNN:
             batch_size=self.constants.BATCH_SIZE, 
             shuffle=True)
 
-    class MLP(nn.Module): # inherits from nn.Module
+    class Architecture(nn.Module): # inherits from nn.Module
         def __init__(self, c: NNConstants):
-            super(FeedForwardNN.MLP, self).__init__()
+            super(FFNN.Architecture, self).__init__()
             self.D_in = c.D_IN
             self.D_out = c.D_OUT
 
@@ -150,12 +150,13 @@ class FeedForwardNN:
             self.fc_out = nn.Linear(D_h_out, self.D_out)
         
         def forward(self, x): # forward propagation
+            x = x.float()
             x = F.leaky_relu(self.fc_in(x))
             x = F.leaky_relu(self.fc_h0(x))
-            x = F.leaky_relu(self.fc_out(x))
+            x = F.log_softmax(self.fc_out(x), dim=1).float()
             return x
 
-    def train(self, n_epochs):
+    def train(self, n_epochs, plot=True, verbose=False):
         train_loader = self.train_dl
         val_loader = self.test_dl
         device=self.device
@@ -170,49 +171,50 @@ class FeedForwardNN:
                 self.optimizer.zero_grad() # clears paramter gradient buffers
                 inputs, targets = batch
                 # transfer batch data to computation device
-                inputs, targets = [tensor.to(device) \
-                    for tensor in [inputs, targets]]
+                inputs, targets = [
+                    tensor.to(device) for tensor in [inputs, targets]]
+                targets = targets.long() # converts dtype to Long
                 output = self.network(inputs)
-                loss = self.loss_fn(output, targets)
+                loss = self.loss_fn(output, targets.flatten())
                 # back propagation
                 loss.backward()
                 self.optimizer.step() # update model weights
                 train_loss += loss.data.item()
+                if (idx % 10 == 0) and verbose:
+                    print(f"epoch {epoch+1}/{n_epochs}, batch {idx}.")
             train_losses.append(train_loss)
-            if idx % 10 == 0:
-                print(f"epoch {epoch+1}/{n_epochs}, batch {idx}.")
             
             # Validation 
             self.network.eval()        
             for batch in val_loader:
                 inputs, targets = batch
-                [inputs, targets] = [tensor.to(device) for tensor in batch]
+                inputs, targets = [tensor.to(device) for tensor in batch]
+                targets = targets.long() # converts dtype to Long
                 output = self.network(inputs)
-                loss = self.loss_fn(output, targets)
+                loss = self.loss_fn(output, targets.flatten())
                 val_loss += loss.data.item()
             val_losses.append(val_loss)
         
             print(f"Epoch: {epoch}, Training Loss: {train_loss:.3f}, "
                  +f"Validation loss: {val_loss:.3f}")
 
-        fig, ax = plt.subplots()
-        fig.tight_layout()
-        ax.plot(np.arange(n_epochs), train_losses, '-', label="training set")
-        ax.plot(np.arange(n_epochs), val_losses, '-', label="test set")
-        ax.set(xlabel="Epoch", ylabel="Loss")
-        ax.legend()
-        plt.show()
+        if plot:
+            fig, ax = plt.subplots()
+            fig.tight_layout()
+            ax.plot(np.arange(n_epochs), train_losses, '-', label="training set")
+            ax.plot(np.arange(n_epochs), val_losses, '-', label="test set")
+            ax.set(xlabel="Epoch", ylabel="Loss")
+            ax.legend()
+            plt.show()
 
 def main():
-    # X = 
-    # Y = 
+    X = np.random.randint(0, 3, size=[500,100])
+    Y = (X[:, 0] * 7 % 3).flatten()
     constants = NNConstants(BATCH_SIZE=100, D_OUT=3, X=X)
-    ffnn = FeedForwardNN(X, Y, constants)
-    ffnn.set_data_loaders()
+    ffnn = FFNN(X, Y, constants)
     network = ffnn.network
     print(network)
-    ffnn.train(n_epochs = 20)    
-    print(f"network(z): {network(z)}")
+    ffnn.train(n_epochs = 80)    
 
 if __name__ == "__main__":
     main()
