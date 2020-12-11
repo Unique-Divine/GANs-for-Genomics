@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "..\\PyTorch Deep Learning Tutorials"
+		}
+	],
+	"settings": 
+	{
+		"python.pythonPath": "C:\\Users\\uniqu\\anaconda3\\envs\\ds_env\\python.exe"
+	}
+}
