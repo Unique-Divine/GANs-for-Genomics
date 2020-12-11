@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "..\\PyTorch Deep Learning Tutorials"
 		}
 	],
 	"settings": 
