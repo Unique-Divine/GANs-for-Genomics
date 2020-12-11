@@ -13,7 +13,7 @@ class ML:
         self.Y = Y
         self.model_type = model_type
         self.model = None
-        self.setTrainTestSplits()
+        self.getTrainTestSplits()
         self.Y_pred = None
 
     @property
@@ -71,7 +71,7 @@ class ML:
             model_selection.train_test_split(self.X, self.Y, 
                                              test_size=test_size, 
                                              random_state=random_state)
-        return [self._X_train, self._Y_train, self._X_test, self._Y_test]
+        return [self._X_train, self._X_test, self._Y_train, self._Y_test]
 
     def trainClassifier(self):
         shallow_models = {"xgb": xgb.XGBClassifier(), 
