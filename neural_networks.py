@@ -9,6 +9,7 @@ import torch
 import torch.nn as nn 
 import torch.nn.functional as F
 import torch.utils.data
+import torch.optim
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -24,7 +25,7 @@ class NNConstants:
         self._BATCH_SIZE = BATCH_SIZE
         self.D_OUT = D_OUT # number of output nodes (target categories).
         self.N_LAYERS = N_LAYERS
-    
+
     @property
     def BATCH_SIZE(self) -> int:
         return self.BATCH_SIZE
@@ -36,13 +37,19 @@ class NNConstants:
         self.BATCH_SIZE = 100
 
 class FeedForwardNN:
-
-    def __init__(self, X: np.ndarray, Y: np.ndarray):
+    
+    def __init__(self, X: np.ndarray, Y: np.ndarray, constants: NNConstants):
         ml = ml_models.ML(X, Y, model_type = "mlp")
         ttsplits = ml.getTrainTestSplits()
         self.X_train, self.Y_train, self.X_test, self.Y_test = ttsplits
         self.X, self.Y = ml.X, ml.Y
         self.n_features = self.X.shape[1]
+        self.constants = constants
+        self.network = self.set_network()
+        self.device = self.set_device()
+        self.optimizer = self.set_optimizer()
+        self.loss_fn = self.set_loss_fn
+        self.set_data_loaders()
 
     def getBATCH_SIZE(self):
         return self.BATCH_SIZE
@@ -50,6 +57,25 @@ class FeedForwardNN:
         return self.D_OUT
     def getN_LAYERS(self):
         return self.N_LAYERS
+
+    def set_device(self):
+        if torch.cuda.is_available(): # If PyTorch reports that GPU is available
+            device = torch.device("cuda") # device = GPU
+        else:
+            device = torch.device("cpu") # device = CPU
+        return device
+    
+    def set_network(self):
+        network = FeedForwardNN.MLP(self.constants)
+        return network
+
+    def set_optimizer(self):
+        optimizer = torch.optim.Adam(self.network.parameters(), lr=0.01)
+        return optimizer
+
+    def set_loss_fn(self):
+        loss_fn = nn.MSELoss()
+        return loss_fn
 
     class TabularDataset(torch.utils.data.Dataset): # inherit from torch's Dataset class.
         def __init__(self, train: bool, X_train: np.ndarray, Y_train: np.ndarray, 
@@ -76,7 +102,7 @@ class FeedForwardNN:
         def __len__(self):
             return self.n_samples
 
-    def setDataLoaders(self):
+    def set_data_loaders(self):
         self.train_set = self.TabularDataset(train=True)
         self.test_set = self.TabularDataset(train=False)
         self.train_dl = torch.utils.data.DataLoader(
@@ -100,8 +126,10 @@ class FeedForwardNN:
             self.h_layers = []
             for h_layer in range(self.N_LAYERS - 2):
                 print(h_layer, D_h_in, D_h_out)
-                D_h_in = int((self.N_LAYERS - h_layer - 1) * (c.D_IN / self.N_LAYERS))
-                D_h_out = int((self.N_LAYERS - h_layer - 2) * (c.D_IN / self.N_LAYERS))
+                D_h_in = int((self.N_LAYERS - h_layer - 1) 
+                              * (c.D_IN / self.N_LAYERS))
+                D_h_out = int((self.N_LAYERS - h_layer - 2) 
+                               * (c.D_IN / self.N_LAYERS))
                 self.h_layers.append(nn.Linear(D_h_in, D_h_out))
             # output layer
             self.fc_out = nn.Linear(D_h_out, self.D_out)
@@ -113,7 +141,56 @@ class FeedForwardNN:
             x = F.leaky_relu(self.fc_out(x))
             return x
 
+
+
     # TODO: Training method
+    def train(self, train_loader, val_loader,
+            n_epochs, device=device):
+        train_losses, val_losses = [], []
+
+        for epoch in range(n_epochs):
+            train_loss = 0.0
+            val_loss = 0.0
+            
+            # Training
+            self.network.train()
+            for idx, batch in enumerate(train_loader):
+                self.optimizer.zero_grad() # clears gradient buffers of all parameters
+                inputs, targets = batch
+                # transfer batch data to computation device
+                [inputs, targets] = [tensor.to(device) for tensor in [inputs, targets]]
+                output = self.network(inputs)
+                loss = self.loss_fn(output, targets)
+                # back propagation
+                loss.backward()
+                self.optimizer.step() # update model weights
+                train_loss += loss.data.item()
+    #         train_loss /= len(train_iterator)
+            train_losses.append(train_loss)
+        
+            if idx % 10 == 0:
+                print(f"epoch {epoch+1}/{n_epochs}, batch {idx}.")
+            
+            # Validation 
+            self.network.eval()        
+            for batch in val_loader:
+                inputs, targets = batch
+                [inputs, targets] = [tensor.to(device) for tensor in batch]
+                output = self.network(inputs)
+                loss = self.loss_fn(output, targets)
+                val_loss += loss.data.item()
+    #         val_loss /= len(valid_iterator)
+            val_losses.append(val_loss)
+        
+            print(f"Epoch: {epoch}, Training Loss: {train_loss:.3f}, "
+                +f"Validation loss: {val_loss:.3f}")
+
+        fig, ax = plt.subplots()
+        fig.tight_layout()
+        ax.plot(np.arange(n_epochs), train_losses, '-')
+        ax.plot(np.arange(n_epochs), val_losses, '-')
+        ax.legend()
+        plt.show()
 
 def main():
     z = torch.Tensor(np.random.randint(0, 25, size=[500, 10]).astype(float))
