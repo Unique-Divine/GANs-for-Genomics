@@ -9,7 +9,9 @@
 bioinformatics.code-workspace
 
 data/**recordAttributes**.csv
-data/**gt_**.csv
+data**gt_**.csv
+**gt_**
+
 
 gt_C.csv
 gtTypes.csv
