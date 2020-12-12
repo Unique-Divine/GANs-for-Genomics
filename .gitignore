@@ -4,6 +4,13 @@
 **pycache**
 **.pyc
 
+.vscode/settings.json
+**settings.json**
+bioinformatics.code-workspace
+
+data/**recordAttributes**.csv
+data/**gt_**.csv
+
 gt_C.csv
 gtTypes.csv
 recordAttributes.csv
