@@ -1,21 +1,19 @@
+# Jupyter stuff and pycache
 **checkpoint.ipyn**
 **checkpoint**
 **checkpoint.ipy**
-**pycache**
-**.pyc
 
+# vs code files
 .vscode/settings.json
 **settings.json**
 bioinformatics.code-workspace
+**pycache**
+**.pyc 
 
+# Large files in /data/
 data/**recordAttributes**.csv
 data**gt_**.csv
 **gt_**
-
-
-gt_C.csv
-gtTypes.csv
-recordAttributes.csv
-
-gtTypes**.csv
-recordAttributes**.csv
+data/X_common.csv
+gtType**.csv
+recordAttribute**.csv
