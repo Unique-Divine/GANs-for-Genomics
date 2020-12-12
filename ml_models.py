@@ -1,4 +1,5 @@
 #!/usr/bin/python
+__author__ = "Unique Divine"
 
 from ctgan.synthesizer import CTGANSynthesizer
 import numpy as np

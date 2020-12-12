@@ -137,11 +137,19 @@ def test_X_common():
     X_common.to_csv("data/X_common (H).csv", index = False, header = False)
 
 def make_X_common():
-    X_common_C = pd.read_csv("data/X_common (C).csv")
-    X_common_H = pd.read_csv("data/X_common (H).csv")
+    file_names = ["data/X_common (C).csv", "data/X_common (H).csv"]
+    X_common_C = pd.read_csv(file_names[0])
+    X_common_H = pd.read_csv(file_names[1])
     X_common = np.hstack([X_common_C.values, X_common_H.values])
     pd.DataFrame(X_common).to_csv(
         "data/X_common.csv", index = False, header = False)
+
+    # Delete "scratch" files.    
+    for file_name in file_names:
+        if os.path.exists(file_name):
+            os.remove(file_name)
+        else:
+            print(f"Couldn't delete '{file_name}' b/c it does'nt exist.")
 
 def main():
     get_common_Xs("C")

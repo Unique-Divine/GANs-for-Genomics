@@ -1,3 +1,6 @@
+#!/usr/bin/python
+__author__ = "Unique Divine"
+
 # import PyTorch
 import torch
 
@@ -95,8 +98,9 @@ class Preprocessing:
             X (np.ndarray, 2D): feature matrix
             Y (np.ndarray, 2D): target matrix
             get_coefs (bool, optional):  Defaults to True.
-            test_fn (bool, optional): Checks whether the function works correctly using 
-                a randomly generated target matrix, Y_synth. Defaults to False. 
+            test_fn (bool, optional): Checks whether the function works correctly 
+                using a randomly generated target matrix, Y_synth. 
+                Defaults to False. 
         Returns:
             coefs (np.ndarray, 1D)
         """
