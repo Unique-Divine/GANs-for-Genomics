@@ -94,15 +94,35 @@ def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
                 save_idx += 1
 
 def combine_common_Xs(group, data_path="data"):
+    """[summary]
+
+    Args:
+        group (str): Specifies dataset. "C" or "H". Defaults to "C".
+        data_path (str, optional): Path to the data directory. 
+            Defaults to "data".
+    Raises:
+        ValueError: Group must be in ['C', 'H'].
+    """
+    if group in ["C", "H"]:
+        pass
+    else:
+        raise ValueError(f"{group} is not a valid argument."
+                        + "`group` must be in ['C', 'H']")
+
     common_Xs = []
     if group == "C":
         for i in range(107):
             X_path = os.path.join(data_path, group, 'common_Xs', f"{i}.csv")
             common_X = pd.read_csv(X_path, index_col=False).values
             common_Xs.append(common_X)
+
+            # Delete unnecessary csv files
+            if os.path.exists(X_path):
+                os.remove(X_path)
+
         X_common = np.vstack(common_Xs)
         pd.DataFrame(X_common).to_csv(
-            "data/C/X_common_C.csv",
+            "data/C/X_common_C.T.csv",
             index = False, 
             header = False)
 
@@ -111,53 +131,22 @@ def combine_common_Xs(group, data_path="data"):
             X_path = os.path.join(data_path, group, 'common_Xs', f"{i}.csv")
             common_X = pd.read_csv(X_path, index_col=False).values
             common_Xs.append(common_X)
+
+            # Delete unnecessary csv files
+            if os.path.exists(X_path):
+                os.remove(X_path)
+
         X_common = np.vstack(common_Xs)
         pd.DataFrame(X_common).to_csv(
-            "data/H/X_common_H.csv",
+            "data/H/X_common_H.T.csv",
             index = False, 
             header = False)
-
-def test_X_common():
-    c_path = "data/C/X_common_C.csv"
-    h_path = "data/H/X_common_H.csv" 
-    print(f"Loading values from '{c_path}'...")
-    X_common_C = pd.read_csv(c_path)
-    print(f"Loading values from '{h_path}'...")
-    X_common_H = pd.read_csv(h_path)
-
-    print(f"Shape check: {X_common_C.shape,  X_common_H.shape}")
-    
-    print(f"Saving 'data/X_common (C).csv'")
-    X_common = X_common_C[X_common_C.iloc[:,0].isin(X_common_H.iloc[:,0])]
-    X_common.to_csv("data/X_common (C).csv", index = False, header = False)
-    del X_common
-
-    print(f"Saving 'data/X_common (H).csv'")
-    X_common = X_common_H[X_common_H.iloc[:,0].isin(X_common_C.iloc[:,0])]
-    X_common.to_csv("data/X_common (H).csv", index = False, header = False)
-
-def make_X_common():
-    file_names = ["data/X_common (C).csv", "data/X_common (H).csv"]
-    X_common_C = pd.read_csv(file_names[0])
-    X_common_H = pd.read_csv(file_names[1])
-    X_common = np.hstack([X_common_C.values, X_common_H.values])
-    pd.DataFrame(X_common).to_csv(
-        "data/X_common.csv", index = False, header = False)
-
-    # Delete "scratch" files.    
-    for file_name in file_names:
-        if os.path.exists(file_name):
-            os.remove(file_name)
-        else:
-            print(f"Couldn't delete '{file_name}' b/c it does'nt exist.")
 
 def main():
     get_common_Xs("C")
     get_common_Xs("H")
     combine_common_Xs("C")
     combine_common_Xs("H")
-    test_X_common()
-    make_X_common()
 
 if __name__ == "__main__":
     try:
