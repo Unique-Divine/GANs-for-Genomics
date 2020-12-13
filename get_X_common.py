@@ -5,6 +5,7 @@ import warnings
 warnings.filterwarnings('ignore')
 import time
 import os
+import get_common_indices
 
 def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
     if group in ["C", "H"]:
@@ -19,10 +20,12 @@ def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
         X_batch_size = 2000
         maxIteration = 130
 
-        # Save common indices
+        # Load common indices
         X_path = os.path.join(data_path, group, f"gt_{group}.csv")
         common_indices_path = os.path.join(
             data_path, group, f"common_indices_{group}.csv")
+        if os.path.exists(common_indices_path) == False:
+            get_common_indices.main()
         common_indices = np.array(pd.read_csv(common_indices_path)).flatten()
         
         start_time = time.time()
@@ -59,8 +62,11 @@ def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
             if X_batch_idx >= maxIteration:
                 break
     else: # group == "H"
+        # Load common indices
         common_indices_path = os.path.join(
             data_path, group, f"common_indices_{group}.csv")
+        if os.path.exists(common_indices_path) == False:
+            get_common_indices.main()
         common_indices = np.array(pd.read_csv(common_indices_path)).flatten()
         
         start_time = time.time()
