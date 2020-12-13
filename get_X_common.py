@@ -6,18 +6,21 @@ warnings.filterwarnings('ignore')
 import time
 import os
 
-
 def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
     if group in ["C", "H"]:
         pass
     else:
         raise ValueError(f"{group} is not a valid argument."
                         + "`group` must be in ['C', 'H']")
+    
     save_idx = 0
 
     if group == "C":
+
         X_batch_size = 2000
         maxIteration = 130
+
+        # Save common indices
         X_path = os.path.join(data_path, group, f"gt_{group}.csv")
         common_indices_path = os.path.join(
             data_path, group, f"common_indices_{group}.csv")
@@ -44,11 +47,10 @@ def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
             common_X_batch = X_batch[keepers]
             
             if common_X_batch.size > 0: 
-                save_path = f"data/C/Xrs/{save_idx}.csv"
+                save_path = f"data/C/common_Xs/{save_idx}.csv"
                 pd.DataFrame(common_X_batch).to_csv(
                     save_path,
-                    index = False, 
-                    header = False)
+                    index = False)
                 save_idx += 1
 
             if X_batch_idx >= maxIteration:
@@ -86,11 +88,10 @@ def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
             common_X_batch = X_batch[keepers]
             
             if common_X_batch.size > 0: 
-                save_path = f"data/H/Xrs/{save_idx}.csv"
+                save_path = f"data/H/common_Xs/{save_idx}.csv"
                 pd.DataFrame(common_X_batch).to_csv(
                     save_path,
-                    index = False, 
-                    header = False)
+                    index = False)
                 save_idx += 1
 
 def combine_common_Xs(group, data_path="data"):
@@ -120,11 +121,12 @@ def combine_common_Xs(group, data_path="data"):
             if os.path.exists(X_path):
                 os.remove(X_path)
 
+        file_path = "data/C/X_common_C.T.csv"
+        print(f"Saving {file_path}...")
         X_common = np.vstack(common_Xs)
         pd.DataFrame(X_common).to_csv(
-            "data/C/X_common_C.T.csv",
-            index = False, 
-            header = False)
+            file_path,
+            index = False)
 
     else: # group == "H"
         for i in range(114):
@@ -136,11 +138,12 @@ def combine_common_Xs(group, data_path="data"):
             if os.path.exists(X_path):
                 os.remove(X_path)
 
+        file_path = "data/H/X_common_H.T.csv"
+        print(f"Saving {file_path}...")
         X_common = np.vstack(common_Xs)
         pd.DataFrame(X_common).to_csv(
-            "data/H/X_common_H.T.csv",
-            index = False, 
-            header = False)
+            file_path,
+            index = False)
 
 def main():
     get_common_Xs("C")
