@@ -17,3 +17,5 @@ data**gt_**.csv
 data/X_common.csv
 gtType**.csv
 recordAttribute**.csv
+data/C/common_indices_C**
+data/X_common/**
