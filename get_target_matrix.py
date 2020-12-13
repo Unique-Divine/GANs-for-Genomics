@@ -5,7 +5,7 @@ import time
 import numpy as np
 import pandas as pd
 
-def get_target_matrix():
+def get_Y(group=None):
     """ Retrives the target matrix from "targets.csv". 
     
     The mice were scored on a test and grouped into 3 categories, [GT, IR, ST]. 
@@ -68,17 +68,21 @@ def get_target_matrix():
     target_file_ids = df.loc[(df["Vendor"] == "Charles River")][["RatID", "Phenotype"]].values
     vcf_ids = sample_names["C"]
     Y_C, names_C = get_Y(target_file_ids, vcf_ids) 
+    if group == "C":
+        return Y_C, names_C
 
     target_file_ids = df.loc[(df["Vendor"] == "Harlan")][["RatID", "Phenotype"]].values
     vcf_ids = sample_names["H"]
     Y_H, names_H = get_Y(target_file_ids, vcf_ids)
+    if group == "H":
+        return Y_H, names_H
     
     Y = np.concatenate([Y_C, Y_H])
     names = np.concatenate([names_C, names_H])
-
+            
     return Y, names
 
-Y, names = get_target_matrix()
+Y, names = get_Y()
 
 print(Y.shape)
 print(names.shape)
