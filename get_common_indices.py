@@ -82,9 +82,9 @@ def getCommonSNPIndices(group="C", save=False, verbose=True):
                 + f"SNPs processed: {iteration}")
     if save: 
         if group == "C":
-            pd.Series(indices).to_csv("data/C/common_indices_C", index=False)
+            pd.Series(indices).to_csv("data/C/common_indices_C.csv", index=False)
         elif group == "H":
-            pd.Series(indices).to_csv("data/H/common_indices_H", index=False)
+            pd.Series(indices).to_csv("data/H/common_indices_H.csv", index=False)
     return np.array(indices)
 
 def main (verbose=True):

@@ -53,7 +53,10 @@ def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
             
             # Save common_X_batch
             if common_X_batch.size > 0: 
-                save_path = f"data/C/common_Xs/{save_idx}.csv"
+                dir_path = "data/C/common_Xs"
+                if os.path.exists(dir_path) == False:
+                    os.mkdir(dir_path)
+                save_path = os.path.join(dir_path, f"{save_idx}.csv")
                 pd.DataFrame(common_X_batch).to_csv(
                     save_path,
                     index = False)
@@ -99,8 +102,11 @@ def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
             common_X_batch = X_batch[keepers]
             
             # Save common_X_batch
-            if common_X_batch.size > 0: 
-                save_path = f"data/H/common_Xs/{save_idx}.csv"
+            if common_X_batch.size > 0:
+                dir_path = "data/H/common_Xs"
+                if os.path.exists(dir_path) == False:
+                    os.mkdir(dir_path) 
+                save_path = os.path.join(dir_path, f"{save_idx}.csv")
                 pd.DataFrame(common_X_batch).to_csv(
                     save_path,
                     index = False)
