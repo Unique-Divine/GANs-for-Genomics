@@ -16,7 +16,6 @@ def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
     save_idx = 0
 
     if group == "C":
-
         X_batch_size = 2000
         maxIteration = 130
 
@@ -31,12 +30,15 @@ def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
             pd.read_csv(X_path, chunksize=X_batch_size)):
             X_batch = X_batch.values
             current_time = time.time() - start_time
-            
+
+            # Print execution speed            
             if (X_batch_idx % 1 == 0) and (timeit):
                 print(f"Batch: {X_batch_idx}\t"
                     + f"Time: {current_time:.2f} s\t"
                     + "SNPs per second: {:.2f}".format(
                         (X_batch_size * X_batch_idx) / current_time))
+
+            # Get common_X_batch := the common elements in X
             batch_indices = np.arange(
                 start = X_batch_idx * X_batch_size,  
                 stop = (X_batch_idx + 1) * X_batch_size )
@@ -46,6 +48,7 @@ def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
             keepers = (keepers % 2000).astype(int)
             common_X_batch = X_batch[keepers]
             
+            # Save common_X_batch
             if common_X_batch.size > 0: 
                 save_path = f"data/C/common_Xs/{save_idx}.csv"
                 pd.DataFrame(common_X_batch).to_csv(
@@ -62,24 +65,26 @@ def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
         
         start_time = time.time()
         for X_batch_idx in range(114):
-            
-            X_path = os.path.join(
-                data_path, group, f"gtTypes_{group} ({X_batch_idx}).csv")
+            X_path = os.path.join(data_path, group,
+                                  f"gtTypes_{group} ({X_batch_idx}).csv")
             X_batch = pd.read_csv(X_path, index_col=False).values
             
+            # Print execution speed
             current_time = time.time() - start_time
             if (X_batch_idx % 5 == 0) and (timeit):
                 print(f"Batch: {X_batch_idx}\t"
                     + f"Time: {current_time:.2f} s\t"
                     + "SNPs per second: {:.2f}".format(
                         (X_batch.shape[0] * X_batch_idx) / current_time))
+            
+            # Get common_X_batch := the common elements in X
+            final_batch_idx = 1
             if X_batch_idx == 0:
                 starting_batch_idx = 0
                 final_batch_idx = X_batch.shape[0]
             else:
                 starting_batch_idx = final_batch_idx
                 final_batch_idx += X_batch.shape[0]
-
             batch_indices = np.arange(starting_batch_idx, final_batch_idx)                        
             assert np.abs(batch_indices[4] - batch_indices[5]) == 1
             keepers = np.array([batch_idx for batch_idx in batch_indices \
@@ -87,6 +92,7 @@ def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
             keepers = (keepers % X_batch.shape[0]).astype(int)
             common_X_batch = X_batch[keepers]
             
+            # Save common_X_batch
             if common_X_batch.size > 0: 
                 save_path = f"data/H/common_Xs/{save_idx}.csv"
                 pd.DataFrame(common_X_batch).to_csv(
