@@ -39,7 +39,7 @@ def getSNPNames(group="C", timeit=False):
                 break
     else:
         for i in range(114):
-            path = f"data/H/recordAttributes_H ({i}).csv"
+            path = f"data/H/recordAttributes/recordAttributes_H ({i}).csv"
             data = pd.read_csv(path)
             SNP_name_batch = data["varIdentifier"].values.astype(str)
             SNP_name_list.append(SNP_name_batch)
