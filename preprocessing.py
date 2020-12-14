@@ -1,9 +1,6 @@
 #!/usr/bin/python
 __author__ = "Unique Divine"
 
-# import PyTorch
-import torch
-
 # standard DS stack
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,7 +9,8 @@ import pandas as pd
 # embed static images in the ipynb
 # %matplotlib inline 
 
-# neural network package
+# PyTorch
+import torch
 import torch.nn as nn 
 import torch.nn.functional as F
 
@@ -32,9 +30,10 @@ warnings.filterwarnings('ignore')
 
 # !pip install statsmodels
 import statsmodels.api as sm
+import os
 import time
+import csv
 from IPython.display import clear_output
-
 
 class Preprocessing:
     def __init__(self):
@@ -43,100 +42,175 @@ class Preprocessing:
         self.target_names = None
         self.data = None
 
-
-    def getTargets(self):
+    def get_Y(self, group=None):
         """ Retrives the target matrix from "targets.csv". 
         
-        The mice were scored on a test and grouped into 3 categories: GT, IR, and ST. 
-        GT was the worst and ST was the best. These groups have been integer encoded.
+        The mice were scored on a test and grouped into 3 categories, [GT, IR, ST]. 
+        GT was the worst and ST was the best, so the groups are integer encoded
+        in the following manner: [GT, IR, ST] -> [0, 1, 2].
+
+        Args:
+            group (str): 
 
         Returns:
             Y (np.ndarray): Phenotype values to be predicted by ML model. 
             names (np.ndarray): The names of the rats.
         """
-        df = pd.read_csv("targets.csv")
-
-        # Check if targets.csv contains the same IDs as the feature matrix
-        targetRatIDs = df.loc[(df["Vendor"] == "Charles River")][["RatID", "Phenotype"]].values
-        miceIDs = np.array(data.columns)[1:].astype(int)
-        assert len((a:=set(targetRatIDs[:, 0])).intersection((b:=set(miceIDs)))) == 1780
-
-        # Remove uncommon elements
-        for number in a.difference(b):
-            targetRatIDs[:, 0] = np.where((targetRatIDs[:, 0] == number), None, targetRatIDs[:, 0])    
-        targetRatIDs = pd.DataFrame(targetRatIDs, columns=["RatID", "Phenotype"]).dropna()
-        assert targetRatIDs.shape[0] == 1780
-
-        targetRatIDs = targetRatIDs.set_index("RatID").sort_index()
-        miceIDs.sort()
-        assert np.all(targetRatIDs.index.values == miceIDs.astype(int))
-
-        targetRatIDs = targetRatIDs.astype(str)
-        targetRatIDs["Phenotype"].value_counts()
-
-        for i, pt in enumerate(targetRatIDs.Phenotype.values):
-            if 'GT' in pt:
-                targetRatIDs.Phenotype.iloc[i] = '0'
-            if 'IR' in pt:
-                targetRatIDs.Phenotype.iloc[i] = '1'
-            if 'ST' in pt:
-                targetRatIDs.Phenotype.iloc[i] = '2'
-
-        assert len(targetRatIDs.Phenotype.value_counts()) == 3
         
-        Y = targetRatIDs.Phenotype.values.astype(int).reshape(-1, 1)
-        names = np.array(list(targetRatIDs.index))
+        df = pd.read_csv("data/targets.csv")
 
-        assert X.shape[0] == Y.shape[0]
+        # Retrieve `sample_names` that were parsed from the vcf files.
+        sample_names = {}
+        batch_size = 10
+        for batch_idx, batch in enumerate(pd.read_csv(
+            "data/C/gt_C.csv", chunksize=batch_size)):
+            sample_names['C'] = np.array(batch.columns[1:]).astype(int)
+            print(f"samples in C: {len(sample_names['C'])}")
+            break
+        for batch_idx, batch in enumerate(pd.read_csv(
+            "data/H/gts/gt_H (0).csv", chunksize=batch_size)):
+            sample_names['H'] = np.array(batch.columns[1:]).astype(int)
+            print(f"samples in H: {len(sample_names['H'])}")
+            break
 
+        def get_Y(target_file_ids, vcf_ids):
+            assert len((a:=set(target_file_ids[:, 0]))
+                        .intersection((b:=set(vcf_ids)))
+                    ) == len(vcf_ids)
+            # Remove uncommon elements
+            for number in a.difference(b):
+                target_file_ids[:, 0] = np.where((target_file_ids[:, 0] == number), None, target_file_ids[:, 0])    
+            target_file_ids = pd.DataFrame(target_file_ids, columns=["RatID", "Phenotype"]).dropna()
+            assert target_file_ids.shape[0] == len(vcf_ids)
+
+            # Sort IDs
+            target_file_ids = target_file_ids.set_index("RatID").sort_index()
+            vcf_ids.sort()
+            assert np.all(target_file_ids.index.values == vcf_ids.astype(int))
+            target_file_ids = target_file_ids.astype(str)
+
+            # Encode categories as integers
+            for i, pt in enumerate(target_file_ids.Phenotype.values):
+                if 'GT' in pt:
+                    target_file_ids.Phenotype.iloc[i] = '0'
+                if 'IR' in pt:
+                    target_file_ids.Phenotype.iloc[i] = '1'
+                if 'ST' in pt:
+                    target_file_ids.Phenotype.iloc[i] = '2'
+
+            assert len(target_file_ids.Phenotype.value_counts()) == 3
+            # Return Y
+            Y = target_file_ids.Phenotype.values.astype(int).reshape(-1, 1)
+            names = np.array(list(target_file_ids.index))
+            return Y, names
+
+        # Check if targets.csv contains the IDs in the feature matrix
+        target_file_ids = df.loc[(df["Vendor"] == "Charles River")][["RatID", "Phenotype"]].values
+        vcf_ids = sample_names["C"]
+        Y_C, names_C = get_Y(target_file_ids, vcf_ids) 
+        if group == "C":
+            return Y_C, names_C
+
+        target_file_ids = df.loc[(df["Vendor"] == "Harlan")][["RatID", "Phenotype"]].values
+        vcf_ids = sample_names["H"]
+        Y_H, names_H = get_Y(target_file_ids, vcf_ids)
+        if group == "H":
+            return Y_H, names_H
+        
+        Y = np.concatenate([Y_C, Y_H])
+        names = np.concatenate([names_C, names_H])
+                
         return Y, names
 
-    def getCriterion(self, X, Y, get_coefs=True, test_fn=False) -> np.ndarray:
+    def get_x(self, group = "C"):
+        """Generator for grabbing feature columns from X.
+
+        Args:
+            group (str, optional): Specifies dataset. Defaults to "C".
+        Raises:
+            ValueError: Group must be in ['C', 'H'].
+        Yields:
+            x (np.ndarray, 1D): A feature column.
+        """
+
+        if group in ["C", "H"]:
+            pass
+        else:
+            raise ValueError(f"{group} is not a valid argument."
+                            + "`group` must be in ['C', 'H']")
+
+        Y = self.get_Y(group)[0]
+        file_name = f"data/{group}/X_common_{group}.T.csv"
+        with open(file_name) as f:
+            reader = csv.reader(f)
+            for line_idx, line in enumerate(reader):
+                if line_idx >= 1:
+                    x = np.array(line)[1:]
+                    assert x.size == Y.size
+                    
+                    yield x    
+
+    def calculate_fs_criterion(self, group="C", get_coefs=True) -> np.ndarray:
         """ Get the feature selection criterion, SVM classifier coefficients. 
+        The absolue value of the these coefficients roughly correspond to
+        feature importances because they are the weights given to each feature. 
         
         Args:
-            X (np.ndarray, 2D): feature matrix
-            Y (np.ndarray, 2D): target matrix
+            groups (str): Dataset selction. "C" or "H". Defaults to "C".
             get_coefs (bool, optional):  Defaults to True.
-            test_fn (bool, optional): Checks whether the function works correctly 
-                using a randomly generated target matrix, Y_synth. 
-                Defaults to False. 
+
         Returns:
-            coefs (np.ndarray, 1D)
+            coefs (np.ndarray, 1D): If `get_coefs == True`, the feature 
+                selection coefficients are returned. Otherwise, they are just
+                saved. 
         """
-        assert X.shape[0] == Y.shape[0], "X and Y have different numbers of samples"
-        assert Y.shape[1] == 1, "Y needs to be a column vector"
+
+        if group in ["C", "H"]:
+            if group == "C":
+                Y = self.get_Y("C")[0].reshape(-1, 1)
+            else:
+                Y = self.get_Y("H")[0].reshape(-1, 1)
+        else:
+            raise ValueError(f"{group} is not a valid argument."
+                            + "`group` must be in ['C', 'H']")
         
-        if test_fn:
-            # simulated target matrix, Y
-            rng = np.random.RandomState(7)
-            Y_synth = rng.randint(0,3, X.shape[0]).reshape(-1,1)
-            Y = Y_synth
+        save_path = os.path.join("data", group, f"coefs_{group}.csv")
+        if os.path.exists(save_path):
+            print(f"{save_path} already exists.")
+            if get_coefs:
+                return (coefs := pd.read_csv(save_path, index=False).values)
 
         coefs, ps = [], []
         scaler = StandardScaler()
-        
-        # for each column of X
-        for row in X.T:
-            x = row.reshape(-1, 1)
-            x = scaler.fit_transform(x, Y)
+        start_time = time.time()
+        # For each feature column, fit a univariate model
+        print("Calculating feature selection coefficients...")
+        for i, feature_col in enumerate(self.get_x("C")):
+            feature_col = feature_col.reshape(-1, 1)
+            feature_col = scaler.fit_transform(feature_col, Y)
             if get_coefs:
-                # Calculate classification coefficients
+                # Calculate classification coefficients and store in a list.
                 model = SGDClassifier(loss='hinge') # SVM classifier
-                model.fit(x, Y)
-                # y_pred = model.predict(x)
+                model.fit(feature_col, Y)
                 coefs.append(model.coef_[0,0])
+            current_time = time.time() - start_time
+            if i % 1000 == 0:
+                print(f"Time (s): {current_time:.1f}\tIterations: {i}\t"
+                    + f"Iterations/T: {i / current_time:.1f}")
 
-            else:
-                # Calculate p-values from logit model
-                # sm_model = sm.Logit(Y, sm.add_constant(x)).fit(disp=0)
-                sm_model = sm.MNLogit(Y, sm.add_constant(x)).fit(disp=0)
-                ps.append(sm_model.pvalues[1])
-        
+            # else:
+            #     # Calculate p-values from logit model
+            #     sm_model = sm.Logit(Y, sm.add_constant(feature_col)).fit(disp=0)
+            #     ps.append(sm_model.pvalues[1])
+            # ps = np.array(ps)
+
+        # Take the absolute value of the calculated coefs
+        coefs = np.abs(np.concatenate(coefs))
+        # Save
+        print("Saving coefficients...")
+        pd.Series(coefs).to_csv(save_path, index=False)
         if get_coefs:
-            return (coefs:= np.array(coefs))
-        else:
-            return (ps:= np.array(ps))
+            return coefs            
 
     def varAnalysis(self, X, verbose=False):
         """ Retrieves summary statistics about the variance of the columns of X.
@@ -193,7 +267,7 @@ class Preprocessing:
             plot_vars (bool, optional): [description]. Defaults to False.
         """
         # There are about 220,000 features, so we can loop <= 110 times.
-        csvBatchSize = 2000
+        batch_size = 2000
         maxIteration = 112
         
         V_info = {}
@@ -206,17 +280,18 @@ class Preprocessing:
         coefs_list = []
         start_time = time.time()
         
-        for csvBatch_idx, csvBatch in enumerate(pd.read_csv("gtTypes_C.csv", chunksize=csvBatchSize)):
+        for batch_idx, batch in enumerate(
+                pd.read_csv("gt_C.csv", chunksize=batch_size)):
             current_time = time.time() - start_time
             minutes = int(current_time / 60)
             seconds = current_time % 60
-            print(f"Batch: {csvBatch_idx}.\tTime: {minutes} min, {seconds:.2f} s."
-                + f"\tSamples per second: {(csvBatchSize * csvBatch_idx) / current_time:.2f}")
+            print(f"Batch: {batch_idx}.\tTime: {minutes} min, {seconds:.2f} s."
+                + f"\tSamples per second: {(batch_size * batch_idx) / current_time:.2f}")
             
-            self.data = csvBatch
+            self.data = batch
             self.X = self.data.values[:, 1:].astype(float).T
 
-            if csvBatch_idx == 0:
+            if batch_idx == 0:
                 Y, rat_names = self.getTargets()
                 self.Y = Y
                 self.target_names = rat_names
@@ -224,89 +299,25 @@ class Preprocessing:
             # Dynamically plot variance distributions
             if plot_vars:
                 varAnalysisInfo = self.varAnalysis(X=X)
-                V_info["avg"][csvBatch_idx], V_info["std"][csvBatch_idx] = varAnalysisInfo[:2]
-                V_info["max"][csvBatch_idx], V_info["min"][csvBatch_idx] = varAnalysisInfo[2:]
+                V_info["avg"][batch_idx], V_info["std"][batch_idx] = varAnalysisInfo[:2]
+                V_info["max"][batch_idx], V_info["min"][batch_idx] = varAnalysisInfo[2:]
                 
                 V_info_sofar = {} 
                 for key in V_info:
-                    V_info_sofar[key] = V_info[key][:csvBatch_idx + 1]
+                    V_info_sofar[key] = V_info[key][:batch_idx + 1]
                 clear_output(wait=True)
-                print(f"----------\ncsvBatch: {csvBatch_idx}")
+                print(f"----------\nbatch: {batch_idx}")
                 self.plotV_info(V_info_sofar)
             
             # Store feature selection coefficients
             coefs_list.append(self.getCriterion(self.X, self.Y))
             
-            if csvBatch_idx == maxIteration:
+            if batch_idx == maxIteration:
                 break
 
     #------------------------------------------------------
     # post-main()
 
-    def saveCoefs(self, coefs_list):
-        """ Saves the absolue value of the classification coefficients from 
-        a linear SVM (feature importances). These are the weights given to each 
-        feature. 
-        
-        Args:
-            coefs (list[np.ndarray]): A list of the coefficients calculated
-                during batch processing. The array elements batch-length
-                1D arrays of coefficients. 
-        Returns:
-            coefficients (np.ndarray): The saved coefficients. 
-        """
-        try:
-            coefs_exist = pd.read_csv("coefficients_C.csv")
-        except:
-            coefs_exist = None
-
-        if coefs_exist is None:
-            coefficients = np.abs(np.concatenate(coefs_list))
-            pd.Series(coefficients).to_csv("coefficients_C.csv", index=False)
-        else:
-            print("Coefficients have already been saved.")
-            
-    def getCoefs(self, group="C", coefs_list=None, verbose=False) -> np.ndarray:
-        """[summary]
-
-        Args:
-            group (str, optional): "C" for Charles River data, "H" for Harlan,
-                "both" for both. Defaults to "C".
-            coefs_list (list[np.ndarray], optional): A list of coefficients 
-                outside of the default groups. Defaults to None.
-            verbose (bool, optional): Toggles print statements. Defaults to False.
-
-        Raises:
-            Exception: [description]
-
-        Returns:
-            coefs (np.ndarray): 1D array of the feature selection coefficients.
-        """
-        if group == "C":
-            file_name = "coefficients_C.csv"
-        elif group == "H":
-            file_name = "coefficients_H.csv"
-        elif group == "both":
-            file_name = "coefficients.csv"
-        else:
-            raise Exception("Invalid `group` parameter. `group` should be"
-                            + "'C', 'H', or 'both'.")
-            
-        try:
-            coefs = pd.read_csv(file_name, index_col=0)
-            if verbose:
-                print(coefs.shape)
-                print("Coefficients loaded from file.")
-            coefs = np.array(coefs).flatten()
-        except:
-            if isinstance(coefs_list, list):
-                coefs = np.abs(np.concatenate(coefs_list))
-            elif isinstance(coefs_list, np.ndarray):
-                coefs = np.abs(coefs_list)
-            if verbose:
-                print("Coefficients loaded from global scope.")
-            
-        return coefs
 
     def getX_r(self, k, coefs, X, indices=False):
         """ Retrieve the reduced feature matrix, X_r, which is X with a smaller 
@@ -355,13 +366,13 @@ class Preprocessing:
             "return_type must be an 'array' or 'list'."
         
         Xs, SNP_names_list = [], []
-        csvBatchSize = int((self.getCoefs().size / splits) + 1)
+        batch_size = int((self.getCoefs().size / splits) + 1)
         
         start_time = time.time()
-        for csvBatch_idx, csvBatch in enumerate(
-                pd.read_csv("gtTypes_C.csv", chunksize=csvBatchSize)):
-            data = csvBatch
-            coef_arr_idx_bounds = np.array([csvBatch_idx, csvBatch_idx + 1]) * csvBatchSize  
+        for batch_idx, batch in enumerate(
+                pd.read_csv("gtTypes_C.csv", chunksize=batch_size)):
+            data = batch
+            coef_arr_idx_bounds = np.array([batch_idx, batch_idx + 1]) * batch_size  
             coef_arr = self.getCoefs()[coef_arr_idx_bounds[0]: coef_arr_idx_bounds[1]]
             X = data.values[:, 1:].astype(float).T
             SNP_names = data.values[:, 0].astype(str)
@@ -375,12 +386,12 @@ class Preprocessing:
             SNP_names = SNP_names[indices_r]
             SNP_names_list.append(SNP_names)
             
-            if time_it and (csvBatch_idx % 5 == 0):
+            if time_it and (batch_idx % 5 == 0):
                 current_time = time.time() - start_time
                 minutes = int(current_time / 60)
                 seconds = current_time % 60
-                print(f"Batch: {csvBatch_idx}.\tTime: {minutes} min, {seconds:.2f} s."
-                    + f"\tSNPs/second: {(csvBatchSize * csvBatch_idx) / current_time:.2f}")
+                print(f"Batch: {batch_idx}.\tTime: {minutes} min, {seconds:.2f} s."
+                    + f"\tSNPs/second: {(batch_size * batch_idx) / current_time:.2f}")
         if return_type == "array":
             Xs = np.hstack(Xs)
             SNP_names = np.concatenate(SNP_names_list)
@@ -392,9 +403,9 @@ if __name__ == "__main__":
     try:
         # main()
         pp = Preprocessing() 
-        coefs = pp.getCoefs(group="C", coefs_list=None, verbose=True)
-        Xs, SNP_names = pp.splitX(splits=100)
-        print(len(coefs))
+        coefs = pp.calculate_fs_criterion(group = "C", get_coefs = True)
+        # Xs, SNP_names = pp.splitX(splits=100)
+        # print(len(coefs))
         
     except KeyboardInterrupt:
         print("stopped")
