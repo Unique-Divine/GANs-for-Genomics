@@ -74,8 +74,8 @@ def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
         
         start_time = time.time()
         for X_batch_idx in range(114):
-            X_path = os.path.join(data_path, group,
-                                  f"gtTypes_{group} ({X_batch_idx}).csv")
+            X_path = os.path.join(data_path, group, "gts",
+                                  f"gt_{group} ({X_batch_idx}).csv")
             X_batch = pd.read_csv(X_path, index_col=False).values
             
             # Print execution speed
