@@ -65,12 +65,10 @@ class Preprocessing:
         for batch_idx, batch in enumerate(pd.read_csv(
             "data/C/gt_C.csv", chunksize=batch_size)):
             sample_names['C'] = np.array(batch.columns[1:]).astype(int)
-            print(f"samples in C: {len(sample_names['C'])}")
             break
         for batch_idx, batch in enumerate(pd.read_csv(
             "data/H/gts/gt_H (0).csv", chunksize=batch_size)):
             sample_names['H'] = np.array(batch.columns[1:]).astype(int)
-            print(f"samples in H: {len(sample_names['H'])}")
             break
 
         def get_Y(target_file_ids, vcf_ids):
@@ -79,7 +77,10 @@ class Preprocessing:
                     ) == len(vcf_ids)
             # Remove uncommon elements
             for number in a.difference(b):
-                target_file_ids[:, 0] = np.where((target_file_ids[:, 0] == number), None, target_file_ids[:, 0])    
+                target_file_ids[:, 0] = np.where(
+                    (target_file_ids[:, 0] == number), 
+                    None, 
+                    target_file_ids[:, 0])    
             target_file_ids = pd.DataFrame(target_file_ids, columns=["RatID", "Phenotype"]).dropna()
             assert target_file_ids.shape[0] == len(vcf_ids)
 
@@ -156,7 +157,7 @@ class Preprocessing:
         feature importances because they are the weights given to each feature. 
         
         Args:
-            groups (str): Dataset selction. "C" or "H". Defaults to "C".
+            group (str): Dataset selction. "C" or "H". Defaults to "C".
             get_coefs (bool, optional):  Defaults to True.
 
         Returns:
@@ -178,14 +179,14 @@ class Preprocessing:
         if os.path.exists(save_path):
             print(f"{save_path} already exists.")
             if get_coefs:
-                return (coefs := pd.read_csv(save_path, index=False).values)
+                return (coefs := pd.read_csv(save_path).values)
 
         coefs, ps = [], []
         scaler = StandardScaler()
         start_time = time.time()
         # For each feature column, fit a univariate model
         print("Calculating feature selection coefficients...")
-        for i, feature_col in enumerate(self.get_x("C")):
+        for i, feature_col in enumerate(self.get_x(group)):
             feature_col = feature_col.reshape(-1, 1)
             feature_col = scaler.fit_transform(feature_col, Y)
             if get_coefs:
@@ -205,7 +206,7 @@ class Preprocessing:
             # ps = np.array(ps)
 
         # Take the absolute value of the calculated coefs
-        coefs = np.abs(np.concatenate(coefs))
+        coefs = np.abs(np.array(coefs))
         # Save
         print("Saving coefficients...")
         pd.Series(coefs).to_csv(save_path, index=False)
@@ -322,21 +323,23 @@ class Preprocessing:
     def getX_r(self, k, coefs, X, indices=False):
         """ Retrieve the reduced feature matrix, X_r, which is X with a smaller 
         number of features. Features are selected based on the feature selection 
-        coefficients from `getCoefs()`. 
+        coefficients. 
 
         Args:
-            k (int): The number of SNPs (features).
+            k (int or float): The number of SNPs (features).
             coefs (np.ndarray, 1D): Coefficients to determine feature selection.
             indices (bool, optional): Defaults to False.
 
         Returns:
             X_r (array-like): The reduced feature matrix.  
         """
+
         if isinstance(k, int):
             pass
         elif isinstance(k, float) and (np.abs(k) < 1):
             num_features = X.shape[1]
-            k = int(k * num_features + 1) 
+            k = int(k * num_features + 1)
+             
         topk_coefs, topk_indices = [np.array(t) for t in torch.topk(torch.Tensor(coefs), k=k)]
         
         if X is not None:
@@ -365,19 +368,24 @@ class Preprocessing:
         assert return_type == ("array" or "list"), \
             "return_type must be an 'array' or 'list'."
         
+        group = "C"
+        coefs = pp.calculate_fs_criterion(group = group, get_coefs = True)
         Xs, SNP_names_list = [], []
-        batch_size = int((self.getCoefs().size / splits) + 1)
+        batch_size = int((coefs.size / splits) + 1)
         
         start_time = time.time()
+        csv_path = os.path.join("data", group, f"X_common_{group}.T.csv")
         for batch_idx, batch in enumerate(
-                pd.read_csv("gtTypes_C.csv", chunksize=batch_size)):
+                pd.read_csv(csv_path, chunksize=batch_size)):
             data = batch
-            coef_arr_idx_bounds = np.array([batch_idx, batch_idx + 1]) * batch_size  
-            coef_arr = self.getCoefs()[coef_arr_idx_bounds[0]: coef_arr_idx_bounds[1]]
+            coef_batch_idx_bounds = np.array([batch_idx, batch_idx + 1]) * batch_size  
+            coef_batch = coefs[coef_batch_idx_bounds[0]: coef_batch_idx_bounds[1]]
             X = data.values[:, 1:].astype(float).T
             SNP_names = data.values[:, 0].astype(str)
-            assert coef_arr.size == X.shape[1]
-            X_r, indices_r = self.getX_r(k = 0.1, coefs = coef_arr, 
+            assert coef_batch.size == X.shape[1]
+
+            return X, SNP_names
+            X_r, indices_r = self.getX_r(k = 0.1, coefs = coef_batch, 
                                          X = X, indices = True)
             assert X_r.shape[1] == indices_r.size, \
                 "The column count of X_r doesn't match the number of SNP_names."
@@ -403,7 +411,8 @@ if __name__ == "__main__":
     try:
         # main()
         pp = Preprocessing() 
-        coefs = pp.calculate_fs_criterion(group = "C", get_coefs = True)
+        coefs_C = pp.calculate_fs_criterion(group = "C", get_coefs = True)
+        o1, o2 = pp.splitX(20, True)
         # Xs, SNP_names = pp.splitX(splits=100)
         # print(len(coefs))
         
