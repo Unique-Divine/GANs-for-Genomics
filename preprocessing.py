@@ -11,7 +11,8 @@ import pandas as pd
 import torch
 import warnings
 warnings.filterwarnings('ignore')
-
+from sklearn import linear_model
+import sklearn.preprocessing
 # !pip install statsmodels
 import statsmodels.api as sm
 import os
@@ -75,8 +76,7 @@ class Preprocessing:
                     target_file_ids[:, 0])    
             target_file_ids = pd.DataFrame(
                 target_file_ids, 
-                columns = ["RatID", "Phenotype"])
-                .dropna()
+                columns = ["RatID", "Phenotype"]).dropna()
             assert target_file_ids.shape[0] == len(vcf_ids)
 
             # Sort IDs
@@ -178,7 +178,7 @@ class Preprocessing:
                 return (coefs := pd.read_csv(save_path).values)
 
         coefs, ps = [], []
-        scaler = StandardScaler()
+        scaler = sklearn.preprocessing.StandardScaler()
         start_time = time.time()
         # For each feature column, fit a univariate model
         print("Calculating feature selection coefficients...")
@@ -187,7 +187,7 @@ class Preprocessing:
             feature_col = scaler.fit_transform(feature_col, Y)
             if get_coefs:
                 # Calculate classification coefficients and store in a list.
-                model = SGDClassifier(loss='hinge') # SVM classifier
+                model = linear_model.SGDClassifier(loss='hinge') # SVM classifier
                 model.fit(feature_col, Y)
                 coefs.append(model.coef_[0,0])
             current_time = time.time() - start_time
@@ -301,6 +301,9 @@ class Preprocessing:
                 X_r = X[:, topk_indices]
             elif isinstance(X, pd.DataFrame):
                 X_r = X.iloc[:, topk_indices]
+            else:
+                X_r = None
+                raise TypeError("X must be an np.ndarray or pd.DataFrame")
         else:
             raise NotImplementedError("TODO | Handle case when X is None.")
         
@@ -361,6 +364,11 @@ class Preprocessing:
             SNP_names = np.concatenate(SNP_names_list)
         elif return_type == "list": 
             SNP_names = SNP_names_list
+        elif isinstance(return_type, str):
+            raise ValueError("Invalid argument for `return_type`."
+                + " `return_type` must be 'array' or 'list'.")
+        else:
+            raise TypeError("`return_type` (str) must be in ['array', 'list']")
         return Xs, SNP_names
     
     def save_X(self):
