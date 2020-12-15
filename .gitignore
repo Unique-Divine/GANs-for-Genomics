@@ -14,6 +14,7 @@ bioinformatics.code-workspace
 data/**recordAttributes**.csv
 data**gt_**.csv
 **gt_**
+data/**
 data/X_common.csv
 gtType**.csv
 recordAttribute**.csv
