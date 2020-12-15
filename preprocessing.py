@@ -35,13 +35,14 @@ class Preprocessing:
     def get_Y(self, group="both"):
         """ Retrives the target matrix from "targets.csv". 
         
-        The mice were scored on a test and grouped into 3 categories, [GT, IR, ST]. 
-        GT was the worst and ST was the best, so the groups are integer encoded
-        in the following manner: [GT, IR, ST] -> [0, 1, 2].
+        The mice were scored on a test and grouped into 3 categories, 
+        [GT, IR, ST]. GT was the worst and ST was the best, 
+        so the groups are integer encoded in the following manner: 
+        [GT, IR, ST] -> [0, 1, 2].
 
         Args:
-            group (str, optional): Specifies which dataset's target matrix to return.
-                Defaults to "both". 
+            group (str, optional): Specifies which dataset's target matrix 
+                to return. Defaults to "both". 
 
         Returns:
             Y (np.ndarray): Phenotype values to be predicted by ML model. 
@@ -180,14 +181,14 @@ class Preprocessing:
         coefs, ps = [], []
         scaler = sklearn.preprocessing.StandardScaler()
         start_time = time.time()
-        # For each feature column, fit a univariate model
+        # For each feature column, fit a univariate model (SVM classifier)
         print("Calculating feature selection coefficients...")
         for i, feature_col in enumerate(self.get_x(group)):
             feature_col = feature_col.reshape(-1, 1)
             feature_col = scaler.fit_transform(feature_col, Y)
             if get_coefs:
                 # Calculate classification coefficients and store in a list.
-                model = linear_model.SGDClassifier(loss='hinge') # SVM classifier
+                model = linear_model.SGDClassifier(loss='hinge') 
                 model.fit(feature_col, Y)
                 coefs.append(model.coef_[0,0])
             current_time = time.time() - start_time
@@ -197,7 +198,8 @@ class Preprocessing:
 
             # else:
             #     # Calculate p-values from logit model
-            #     sm_model = sm.Logit(Y, sm.add_constant(feature_col)).fit(disp=0)
+            #     x = sm.add_constant(feature_col)
+            #     sm_model = sm.Logit(Y, x).fit(disp=0)
             #     ps.append(sm_model.pvalues[1])
             # ps = np.array(ps)
 
@@ -249,7 +251,8 @@ class Preprocessing:
         figscale, defaultSize = 2, np.array([8, 6])
         fig, ax = plt.subplots(nrows=2, ncols=2 ,figsize=figscale*defaultSize)
         plt.tight_layout()
-        plt.subplots_adjust(wspace=0.1, hspace=0.4, left = 0.1, right = 0.7, bottom = 0.1, top = 0.9) 
+        plt.subplots_adjust(wspace=0.1, hspace=0.4, left = 0.1, 
+                            right = 0.7, bottom = 0.1, top = 0.9) 
         
         ax[0,0].hist(V_info["avg"])
         ax[0,0].set(xlabel="V_avg", ylabel="batches", title="Avg(Var)")
@@ -340,7 +343,8 @@ class Preprocessing:
             data = batch
             coef_batch_idx_bounds = np.array([batch_idx, batch_idx + 1])
             coef_batch_idx_bounds = coef_batch_idx_bounds * batch_size  
-            coef_batch = coefs[coef_batch_idx_bounds[0]: coef_batch_idx_bounds[1]]
+            coef_batch = \
+                coefs[coef_batch_idx_bounds[0]: coef_batch_idx_bounds[1]]
             X = data.values[:, 1:].astype(float).T
             SNP_names = data.values[:, 0].astype(str)
             assert coef_batch.size == X.shape[1]
