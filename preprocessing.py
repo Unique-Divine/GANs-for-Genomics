@@ -42,7 +42,7 @@ class Preprocessing:
         self.target_names = None
         self.data = None
 
-    def get_Y(self, group=None):
+    def get_Y(self, group="both"):
         """ Retrives the target matrix from "targets.csv". 
         
         The mice were scored on a test and grouped into 3 categories, [GT, IR, ST]. 
@@ -50,7 +50,8 @@ class Preprocessing:
         in the following manner: [GT, IR, ST] -> [0, 1, 2].
 
         Args:
-            group (str): 
+            group (str, optional): Specifies which dataset's target matrix to return.
+                Defaults to "both". 
 
         Returns:
             Y (np.ndarray): Phenotype values to be predicted by ML model. 
@@ -177,7 +178,6 @@ class Preprocessing:
         
         save_path = os.path.join("data", group, f"coefs_{group}.csv")
         if os.path.exists(save_path):
-            print(f"{save_path} already exists.")
             if get_coefs:
                 return (coefs := pd.read_csv(save_path).values)
 
@@ -213,7 +213,13 @@ class Preprocessing:
         if get_coefs:
             return coefs            
 
-    def varAnalysis(self, X, verbose=False):
+    #------------------------------------------------------
+    # Variance Analysis Methods 
+    # TODO: Give these method another purpose since you deleted 
+    #   the method that uses them.
+    #------------------------------------------------------
+
+    def var_analysis(self, X, verbose=False):
         """ Retrieves summary statistics about the variance of the columns of X.
 
         Args:
@@ -234,9 +240,10 @@ class Preprocessing:
             print(f"V_max: {np.max(V):.3f}")
             print(f"V_min: {np.min(V):.3f}")
         
-        return V_avg, V_std, V_max, V_min
+        Vs = [V_avg, V_std, V_max, V_min]
+        return Vs 
 
-    def plotV_info(self, V_info):
+    def plot_V_info(self, V_info):
         """[summary]
 
         Args:
@@ -261,66 +268,12 @@ class Preprocessing:
         ax[1,1].set(xlabel="V_min", ylabel="batches", title="Min(Var)")
         plt.show()
 
-    def main(self, plot_vars=False):
-        """[summary]
-
-        Args:
-            plot_vars (bool, optional): [description]. Defaults to False.
-        """
-        # There are about 220,000 features, so we can loop <= 110 times.
-        batch_size = 2000
-        maxIteration = 112
-        
-        V_info = {}
-        V_info["avg"] = np.empty(maxIteration + 1) 
-        V_info["std"] = np.empty(maxIteration + 1) 
-        V_info["max"] = np.empty(maxIteration + 1) 
-        V_info["min"] = np.empty(maxIteration + 1) 
-        
-        global coefs_list
-        coefs_list = []
-        start_time = time.time()
-        
-        for batch_idx, batch in enumerate(
-                pd.read_csv("gt_C.csv", chunksize=batch_size)):
-            current_time = time.time() - start_time
-            minutes = int(current_time / 60)
-            seconds = current_time % 60
-            print(f"Batch: {batch_idx}.\tTime: {minutes} min, {seconds:.2f} s."
-                + f"\tSamples per second: {(batch_size * batch_idx) / current_time:.2f}")
-            
-            self.data = batch
-            self.X = self.data.values[:, 1:].astype(float).T
-
-            if batch_idx == 0:
-                Y, rat_names = self.getTargets()
-                self.Y = Y
-                self.target_names = rat_names
-
-            # Dynamically plot variance distributions
-            if plot_vars:
-                varAnalysisInfo = self.varAnalysis(X=X)
-                V_info["avg"][batch_idx], V_info["std"][batch_idx] = varAnalysisInfo[:2]
-                V_info["max"][batch_idx], V_info["min"][batch_idx] = varAnalysisInfo[2:]
-                
-                V_info_sofar = {} 
-                for key in V_info:
-                    V_info_sofar[key] = V_info[key][:batch_idx + 1]
-                clear_output(wait=True)
-                print(f"----------\nbatch: {batch_idx}")
-                self.plotV_info(V_info_sofar)
-            
-            # Store feature selection coefficients
-            coefs_list.append(self.getCriterion(self.X, self.Y))
-            
-            if batch_idx == maxIteration:
-                break
 
     #------------------------------------------------------
-    # post-main()
+    # Feature matrix 
+    #------------------------------------------------------
 
-
-    def getX_r(self, k, coefs, X, indices=False):
+    def get_X_r(self, k, coefs, X, indices=False):
         """ Retrieve the reduced feature matrix, X_r, which is X with a smaller 
         number of features. Features are selected based on the feature selection 
         coefficients. 
@@ -334,13 +287,18 @@ class Preprocessing:
             X_r (array-like): The reduced feature matrix.  
         """
 
+        coefs = coefs.flatten()
+
         if isinstance(k, int):
             pass
         elif isinstance(k, float) and (np.abs(k) < 1):
             num_features = X.shape[1]
-            k = int(k * num_features + 1)
-             
-        topk_coefs, topk_indices = [np.array(t) for t in torch.topk(torch.Tensor(coefs), k=k)]
+            k = int(k * num_features)
+        else:
+            raise TypeError("k must be an int or float.") 
+        
+        topk_coefs, topk_indices = [
+            np.array(t) for t in torch.topk(torch.Tensor(coefs), k=k)]
         
         if X is not None:
             if isinstance(X, np.ndarray):
@@ -355,37 +313,40 @@ class Preprocessing:
         else:
             return X_r
 
-    def splitX(self, splits, time_it=True, return_type="array"):
+    def split_X(self, group = "C", splits = 40, pct = 0.4, time_it = True,
+                return_type = "array"):
         """
         Args:
+            group (str): Dataset selction. "C" or "H". Defaults to "C".
             splits (int): The number of partitions the data will be split into. 
                 Decides the batch size. 
+            pct (float): Percentage of features in each split to be kept. 
+
         Returns:
             Xs (return_type)
-            SNP_names_list (return_type)
+            SNP_names (return_type)
             return_type (str): "np.ndarray" or "list".
         """
         assert return_type == ("array" or "list"), \
             "return_type must be an 'array' or 'list'."
-        
-        group = "C"
-        coefs = pp.calculate_fs_criterion(group = group, get_coefs = True)
+        assert (isinstance(pct, float)) and (np.abs(pct) <= 1)
+        coefs = self.calculate_fs_criterion(group = group, get_coefs = True)
         Xs, SNP_names_list = [], []
         batch_size = int((coefs.size / splits) + 1)
         
         start_time = time.time()
-        csv_path = os.path.join("data", group, f"X_common_{group}.T.csv")
+        X_T_path = os.path.join("data", group, f"X_common_{group}.T.csv")
         for batch_idx, batch in enumerate(
-                pd.read_csv(csv_path, chunksize=batch_size)):
+                pd.read_csv(X_T_path, chunksize=batch_size)):
             data = batch
-            coef_batch_idx_bounds = np.array([batch_idx, batch_idx + 1]) * batch_size  
+            coef_batch_idx_bounds = np.array([batch_idx, batch_idx + 1])
+            coef_batch_idx_bounds = coef_batch_idx_bounds * batch_size  
             coef_batch = coefs[coef_batch_idx_bounds[0]: coef_batch_idx_bounds[1]]
             X = data.values[:, 1:].astype(float).T
             SNP_names = data.values[:, 0].astype(str)
             assert coef_batch.size == X.shape[1]
 
-            return X, SNP_names
-            X_r, indices_r = self.getX_r(k = 0.1, coefs = coef_batch, 
+            X_r, indices_r = self.get_X_r(k = pct, coefs = coef_batch, 
                                          X = X, indices = True)
             assert X_r.shape[1] == indices_r.size, \
                 "The column count of X_r doesn't match the number of SNP_names."
@@ -396,27 +357,47 @@ class Preprocessing:
             
             if time_it and (batch_idx % 5 == 0):
                 current_time = time.time() - start_time
-                minutes = int(current_time / 60)
-                seconds = current_time % 60
-                print(f"Batch: {batch_idx}.\tTime: {minutes} min, {seconds:.2f} s."
-                    + f"\tSNPs/second: {(batch_size * batch_idx) / current_time:.2f}")
+
+                print(f"Batch: {batch_idx}.\tTime (s): {current_time:.1f}.\t"
+                    + f"SNPs/s: {(batch_size * batch_idx) / current_time:.1f}")
         if return_type == "array":
             Xs = np.hstack(Xs)
             SNP_names = np.concatenate(SNP_names_list)
         elif return_type == "list": 
             SNP_names = SNP_names_list
         return Xs, SNP_names
+    
+    def save_X(self):
+        """[summary]
+        Saves:
+            X (file):
+        """
+        Xs, SNP_names = {}, {}
+        # Reduce Charles River feature set based on selection criterion
+        Xs["C"], SNP_names["C"] = self.split_X("C", splits = 20, pct = 0.6)
+        print(Xs["C"].shape, SNP_names["C"].shape)
+        Xs["C"] = pd.DataFrame(Xs["C"], columns=SNP_names["C"])
+        # Reduce Harlan River feature set based on selection criterion
+        Xs["H"], SNP_names["H"] = self.split_X("H", splits = 20, pct = 0.6)
+        print(Xs["H"].shape, SNP_names["H"].shape)
+        Xs["H"] = pd.DataFrame(Xs["H"], columns=SNP_names["H"])
+        # 
+        overlap = set(SNP_names["C"]).intersection(set(SNP_names["H"]))
+        print(f"cardinality(overlap): {len(overlap)}")
+        Xs["C"] = Xs["C"][list(overlap)]
+        Xs["H"] = Xs["H"][list(overlap)]
 
-if __name__ == "__main__":
+        print("Saving X ...")
+        X = pd.concat([Xs["C"], Xs["H"]])
+        X.to_csv("data/X.csv", index=False)
+
+def main():
+    # First, run get_X_common.py
     try:
-        # main()
         pp = Preprocessing() 
-        coefs_C = pp.calculate_fs_criterion(group = "C", get_coefs = True)
-        o1, o2 = pp.splitX(20, True)
-        # Xs, SNP_names = pp.splitX(splits=100)
-        # print(len(coefs))
-        
+        pp.calculate_fs_criterion(group = "C", get_coefs = False)
+        pp.calculate_fs_criterion(group = "H", get_coefs = False)
+        pp.save_X()
     except KeyboardInterrupt:
         print("stopped")
-# saveCoefs(coefs_list)
 
