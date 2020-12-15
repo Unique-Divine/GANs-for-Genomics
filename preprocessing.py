@@ -8,23 +8,7 @@ import seaborn as sns; sns.set()
 import pandas as pd
 # embed static images in the ipynb
 # %matplotlib inline 
-
-# PyTorch
 import torch
-import torch.nn as nn 
-import torch.nn.functional as F
-
-from sklearn.linear_model import SGDClassifier
-from sklearn.preprocessing import StandardScaler
-from sklearn.feature_selection import SelectKBest, chi2
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn import metrics
-from sklearn.model_selection import KFold
-from sklearn.model_selection import cross_val_score
-from sklearn.metrics import classification_report
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import accuracy_score
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -35,12 +19,17 @@ import time
 import csv
 from IPython.display import clear_output
 
+
+# TODO: Add docstrings to methods that don't have them.
+# TODO: Find a use for the class attributes or get rid of them. 
+    # Automating the __init__ based on whether certain files exist could be 
+    # advantageous. 
+
 class Preprocessing:
     def __init__(self):
         self.X = None
         self.Y = None
         self.target_names = None
-        self.data = None
 
     def get_Y(self, group="both"):
         """ Retrives the target matrix from "targets.csv". 
@@ -73,16 +62,21 @@ class Preprocessing:
             break
 
         def get_Y(target_file_ids, vcf_ids):
-            assert len((a:=set(target_file_ids[:, 0]))
-                        .intersection((b:=set(vcf_ids)))
-                    ) == len(vcf_ids)
+            # Find common elements
+            a = set(target_file_ids[:, 0])
+            b = set(vcf_ids)
+            overlap = a.intersection(b)
+            assert len(overlap) == len(vcf_ids)
             # Remove uncommon elements
             for number in a.difference(b):
                 target_file_ids[:, 0] = np.where(
                     (target_file_ids[:, 0] == number), 
                     None, 
                     target_file_ids[:, 0])    
-            target_file_ids = pd.DataFrame(target_file_ids, columns=["RatID", "Phenotype"]).dropna()
+            target_file_ids = pd.DataFrame(
+                target_file_ids, 
+                columns = ["RatID", "Phenotype"])
+                .dropna()
             assert target_file_ids.shape[0] == len(vcf_ids)
 
             # Sort IDs
@@ -107,13 +101,15 @@ class Preprocessing:
             return Y, names
 
         # Check if targets.csv contains the IDs in the feature matrix
-        target_file_ids = df.loc[(df["Vendor"] == "Charles River")][["RatID", "Phenotype"]].values
+        target_file_ids_C = df.loc[(df["Vendor"] == "Charles River")]
+        target_file_ids = target_file_ids_C[["RatID", "Phenotype"]].values
         vcf_ids = sample_names["C"]
         Y_C, names_C = get_Y(target_file_ids, vcf_ids) 
         if group == "C":
             return Y_C, names_C
-
-        target_file_ids = df.loc[(df["Vendor"] == "Harlan")][["RatID", "Phenotype"]].values
+            
+        target_file_ids_H = df.loc[(df["Vendor"] == "Harlan")]
+        target_file_ids = target_file_ids_H[["RatID", "Phenotype"]].values
         vcf_ids = sample_names["H"]
         Y_H, names_H = get_Y(target_file_ids, vcf_ids)
         if group == "H":
