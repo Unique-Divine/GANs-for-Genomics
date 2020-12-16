@@ -51,14 +51,14 @@ class FFNN:
             Y (np.ndarray): Target matrix
             constants (NNConstants): Constants that speficy the NN architecture.
         """
-        ml = ml_models.ML(X, Y, model_type = "Architecture")
+        ml = ml_models.ML(X, Y, model_type = "mlp")
         ttsplits = ml.getTrainTestSplits()
         self.X_train, self.X_test, self.Y_train, self.Y_test = ttsplits
         self.X, self.Y = ml.X, ml.Y
         self.n_features = self.X.shape[1]
         self.constants = constants
-        self.network = self.set_network()
         self.device = self.set_device()
+        self.network = self.set_network()
         self.optimizer = self.set_optimizer()
         self.loss_fn = self.set_loss_fn()
         self.set_data_loaders()
@@ -76,10 +76,11 @@ class FFNN:
     def set_device(self):
         # If GPU is available
         if torch.cuda.is_available(): 
-            device = torch.device("cuda") # device = GPU
+            device = torch.device("cuda:0") # device = GPU
         else:
             device = torch.device("cpu") # device = CPU
-        return device
+        
+        self.device = device
     
     def set_network(self):
         network = FFNN.Architecture(self.constants)
@@ -148,11 +149,15 @@ class FFNN:
             self.fc_h0 = nn.Linear(D_h_in, D_h_out)
             # output layer
             self.fc_out = nn.Linear(D_h_out, self.D_out)
+
+            self.dropout = nn.Dropout(p=0.25)
         
         def forward(self, x): # forward propagation
             x = x.float()
             x = F.leaky_relu(self.fc_in(x))
+            x = self.dropout(x)
             x = F.leaky_relu(self.fc_h0(x))
+            x = self.dropout(x)
             x = F.log_softmax(self.fc_out(x), dim=1).float()
             return x
 
@@ -160,6 +165,8 @@ class FFNN:
         train_loader = self.train_dl
         val_loader = self.test_dl
         device=self.device
+        self.network.to(device)
+
         train_losses, val_losses = [], []
 
         for epoch in range(n_epochs):
@@ -216,5 +223,5 @@ def main():
     print(network)
     ffnn.train(n_epochs = 80)    
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
