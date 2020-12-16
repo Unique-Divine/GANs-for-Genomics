@@ -32,7 +32,7 @@ class Preprocessing:
         self.Y = None
         self.target_names = None
 
-    def get_Y(self, group="both"):
+    def get_Y(self, group="both", data_path="data"):
         """ Retrives the target matrix from "targets.csv". 
         
         The mice were scored on a test and grouped into 3 categories, 
@@ -49,17 +49,17 @@ class Preprocessing:
             names (np.ndarray): The names of the rats.
         """
         
-        df = pd.read_csv("data/targets.csv")
+        df = pd.read_csv(os.path.join(data_path, "targets.csv"))
 
         # Retrieve `sample_names` that were parsed from the vcf files.
         sample_names = {}
         batch_size = 10
         for batch_idx, batch in enumerate(pd.read_csv(
-            "data/C/gt_C.csv", chunksize=batch_size)):
+            os.path.join(data_path, "C/gt_C.csv"), chunksize=batch_size)):
             sample_names['C'] = np.array(batch.columns[1:]).astype(int)
             break
         for batch_idx, batch in enumerate(pd.read_csv(
-            "data/H/gts/gt_H (0).csv", chunksize=batch_size)):
+            os.path.join(data_path, "H/gts/gt_H (0).csv"), chunksize=batch_size)):
             sample_names['H'] = np.array(batch.columns[1:]).astype(int)
             break
 
@@ -176,7 +176,8 @@ class Preprocessing:
         save_path = os.path.join("data", group, f"coefs_{group}.csv")
         if os.path.exists(save_path):
             if get_coefs:
-                return (coefs := pd.read_csv(save_path).values)
+                coefs = pd.read_csv(save_path).values
+                return coefs
 
         coefs, ps = [], []
         scaler = sklearn.preprocessing.StandardScaler()
