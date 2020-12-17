@@ -1,15 +1,53 @@
 # Research Notes <!-- omit in toc -->
 
 
-- [Parsing and loading the data](#parsing-and-loading-the-data)
-  - [PyVCF background info](#pyvcf-background-info)
-  - [Target Variable](#target-variable)
-- [TODO](#todo)
-- [Google Colab](#google-colab)
-  - [Pytorch in Colab?](#pytorch-in-colab)
-  - [`requirements.txt` in virtual environment](#requirementstxt-in-virtual-environment)
-  - [How to enter multiple shell commands in one line](#how-to-enter-multiple-shell-commands-in-one-line)
-- [Chronological Research Notes](#chronological-research-notes)
+- [Report](#report)
+  - [Predictive Modeling Performance](#predictive-modeling-performance)
+    - [Feature selection & dimensionality reduction](#feature-selection--dimensionality-reduction)
+    - [GAN training](#gan-training)
+  - [Parsing and loading the data](#parsing-and-loading-the-data)
+    - [PyVCF background info](#pyvcf-background-info)
+    - [Target Variable](#target-variable)
+  - [Google Colab](#google-colab)
+    - [Pytorch in Colab?](#pytorch-in-colab)
+    - [`requirements.txt` in virtual environment](#requirementstxt-in-virtual-environment)
+    - [How to enter multiple shell commands in one line](#how-to-enter-multiple-shell-commands-in-one-line)
+  - [Chronological Research Notes](#chronological-research-notes)
+
+
+## TODO
+
+
+1. [ ] Generate new samples to improve dataset quality
+2. [ ] Evaluate models again
+3. [ ] Evaluate classifier NNs 
+
+
+----
+<!-- ------------------------ -->
+# Report
+<!-- ------------------------ -->
+
+## Predictive Modeling Performance
+
+### Feature selection & dimensionality reduction
+
+Principal Component Analysis (PCA)
+
+Removing noisy features. 
+
+Linear Discriminant Analysis (LDA)
+
+### GAN training
+
+Training the GANs out of the box was extremely time consuming becuase 
+of the transormations included 
+
+
+
+
+
+
 
 ## Parsing and loading the data
 
@@ -37,20 +75,6 @@ Additive assumption of GWAS
 **Targets**: Phenotype information for the mice.
 
 There's another file in the github that gives a description. It's an Excel vile called SV...xls*. It has sample and phenotype info. 
-
-## TODO
-
-1. [ ] Recover the X_common for the C and H datasets.
-2. [ ] Perform feature selection to get X_r
-3. [ ] Train GANs on X_r & Y
-4. [ ] Evaluate each model while the GANs train 
-- Neural Networks 
-  - [ ] Implement data loader
-  - [ ] Implement network architecture
-  > - "Very simple. Just keep adding layers until the test error does not improve anymore." - Yoshu Bengio
-  - [ ] Write a NN training method
-1. [ ] Generate new samples to improve dataset quality
-2. [ ] Evaluate models again
 
 ---
 
@@ -111,9 +135,9 @@ I need to narrow down relevant SNPs. In last meeting, we discussed a few methods
 There are different numbers of SNPs between the two groups of samples. 
 
 
-#### 
+#### Early December
 
-motivation fo GWAS - finding associations in genome
+motivation o GWAS - finding associations in genome
 visualizations - manhattan plot
 metrics 
 
@@ -122,25 +146,13 @@ motivation for using them
 
 dataset Dawley Rats
 
+
 rough summary of project ^^^
 
 
 
-Importance of undergrad research:
-
-- seems intimidating at first
-- more latitude to make mistakes and waste your time
-- gives you a head start: longer you do it, better you get
-
-look for statistics / sources to bolster claims:
-
 
 ----
-
-Jie Yuan 8:24 PM
-
-https://www.cs.columbia.edu/calendar/
-
 
 Jie Yuan 8:32 PM
 
@@ -151,3 +163,5 @@ https://journals.sagepub.com/doi/abs/10.3102/0002831213482038
 Jie Yuan 8:38 PM
 
 map/ped
+
+
