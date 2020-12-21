@@ -12,9 +12,13 @@
 
 # Large files in /data/
 <<<<<<< HEAD
+<<<<<<< HEAD
 genomics_gans/data/**
 =======
 >>>>>>> e14c034... update git ignore
+=======
+genomics_gans/data/**
+>>>>>>> 967a658... update git ignore
 **data/**recordAttributes**.csv
 **data**gt_**.csv
 **gt_**
