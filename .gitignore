@@ -19,8 +19,12 @@ genomics_gans/data/**
 **data**gt_**.csv
 **gt_**
 <<<<<<< HEAD
+<<<<<<< HEAD
 **data/**
 <<<<<<< HEAD
+=======
+**data/**
+>>>>>>> 92b581b... update git ignore
 **X**csv
 **gtType**.csv
 **recordAttribute**.csv
