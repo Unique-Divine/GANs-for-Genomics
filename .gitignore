@@ -18,6 +18,7 @@ genomics_gans/data/**
 **data/**recordAttributes**.csv
 **data**gt_**.csv
 **gt_**
+<<<<<<< HEAD
 **data/**
 <<<<<<< HEAD
 **X**csv
@@ -32,3 +33,10 @@ genomics_gans/data/**
 data/C/common_indices_C**
 data/X_common/**
 >>>>>>> e14c034... update git ignore
+=======
+**X**csv
+**gtType**.csv
+**recordAttribute**.csv
+**data/C/common_indices_C**
+**data/X_common/**
+>>>>>>> 28b216f... update git ignore
