@@ -1,0 +1,13 @@
+**checkpoint.ipyn**
+**checkpoint**
+**checkpoint.ipy**
+**pycache**
+__pycache__*
+ctgan/__pycache__/**
+
+gt_C.csv
+gtTypes.csv
+recordAttributes.csv
+
+gtTypes**.csv
+recordAttributes**.csv
