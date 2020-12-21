@@ -11,13 +11,24 @@
 **.pyc 
 
 # Large files in /data/
+<<<<<<< HEAD
 genomics_gans/data/**
+=======
+>>>>>>> e14c034... update git ignore
 **data/**recordAttributes**.csv
 **data**gt_**.csv
 **gt_**
 **data/**
+<<<<<<< HEAD
 **X**csv
 **gtType**.csv
 **recordAttribute**.csv
 **data/C/common_indices_C**
 **data/X_common/**
+=======
+**data/X_common.csv
+**gtType**.csv
+**recordAttribute**.csv
+data/C/common_indices_C**
+data/X_common/**
+>>>>>>> e14c034... update git ignore
