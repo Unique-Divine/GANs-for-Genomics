@@ -6,17 +6,17 @@
 # vs code files
 .vscode/settings.json
 **settings.json**
-bioinformatics.code-workspace
+**bioinformatics.code-workspace
 **pycache**
 **.pyc 
 
 # Large files in /data/
-data/**recordAttributes**.csv
-data**gt_**.csv
+**data/**recordAttributes**.csv
+**data**gt_**.csv
 **gt_**
-data/**
-data/X_common.csv
-gtType**.csv
-recordAttribute**.csv
+**data/**
+**data/X_common.csv
+**gtType**.csv
+**recordAttribute**.csv
 data/C/common_indices_C**
 data/X_common/**
