@@ -11,6 +11,7 @@
 **.pyc 
 
 # Large files in /data/
+genomics_gans/data/**
 **data/**recordAttributes**.csv
 **data**gt_**.csv
 **gt_**
