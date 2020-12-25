@@ -1,3 +1,4 @@
+#%%
 import numpy as np
 from numpy import testing
 import pandas as pd
@@ -6,8 +7,25 @@ warnings.filterwarnings('ignore')
 import time
 import os
 import get_common_indices
+import sys
 
-def get_common_Xs(group: str, data_path="data", timeit=True) -> None:
+sys.path.append("..")
+DATA_PATH = os.path.join("..", "data" )
+
+
+# %%
+def get_common_Xs(group: str, data_path: str = DATA_PATH, 
+                  timeit: bool = True) -> None:
+    """[summary]
+
+    Args:
+        group (str): [description]
+        data_path (str, optional): [description]. Defaults to DATA_PATH.
+        timeit (bool, optional): [description]. Defaults to True.
+
+    Raises:
+        ValueError: [description]
+    """     
     if group in ["C", "H"]:
         pass
     else:
