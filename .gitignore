@@ -14,9 +14,8 @@
 **data/**recordAttributes**.csv
 **data**gt_**.csv
 **gt_**
-**data/**
-**data/X_common.csv
+**X**csv
 **gtType**.csv
 **recordAttribute**.csv
-data/C/common_indices_C**
-data/X_common/**
+**data/C/common_indices_C**
+**data/X_common/**
