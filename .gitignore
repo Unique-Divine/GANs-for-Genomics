@@ -14,6 +14,7 @@
 **data/**recordAttributes**.csv
 **data**gt_**.csv
 **gt_**
+**data/**
 **X**csv
 **gtType**.csv
 **recordAttribute**.csv
