@@ -1,22 +1,24 @@
-#%%
 import numpy as np
-from numpy import testing
 import pandas as pd
+
+# Standard libraries
 import warnings
 warnings.filterwarnings('ignore')
 import time
 import os
-import get_common_indices
 import sys
+
+# Local libraries
+import get_common_indices
 
 sys.path.append("..")
 DATA_PATH = os.path.join("..", "data" )
 
-
-# %%
-def get_common_Xs(group: str, data_path: str = DATA_PATH, 
+def save_common_Xs(group: str, data_path: str = DATA_PATH, 
                   timeit: bool = True) -> None:
-    """[summary]
+    """Finds the common SNPs between the Charles River and Harlan River 
+    datasets, then saves batches of the samples corresponding to these common
+    SNPs.  
 
     Args:
         group (str): [description]
@@ -131,8 +133,10 @@ def get_common_Xs(group: str, data_path: str = DATA_PATH,
                 save_idx += 1
 
 def combine_common_Xs(group, data_path="data"):
-    """[summary]
-
+    """Combines the batches created in the save_common_Xs method so that there 
+    is one file corresponding to each dataset. These will be saved as 
+    "data/C/X_common_C.T.csv" and "data/H/X_common_H.T.csv".  
+    
     Args:
         group (str): Specifies dataset. "C" or "H". Defaults to "C".
         data_path (str, optional): Path to the data directory. 
@@ -182,8 +186,8 @@ def combine_common_Xs(group, data_path="data"):
             index = False)
 
 def main():
-    get_common_Xs("C")
-    get_common_Xs("H")
+    save_common_Xs("C")
+    save_common_Xs("H")
     combine_common_Xs("C")
     combine_common_Xs("H")
 
