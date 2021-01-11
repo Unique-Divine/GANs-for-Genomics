@@ -185,6 +185,8 @@ def combine_common_Xs(group, data_path="data"):
             file_path,
             index = False)
 
+# TODO: Write a method that combines X_common_C and X_comon_H 
+
 def main():
     save_common_Xs("C")
     save_common_Xs("H")
