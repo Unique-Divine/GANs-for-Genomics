@@ -2,7 +2,6 @@
 <!-- Overview -->
 
 
-
 <!-- Motivation -->
 ## Motivation
 
@@ -66,6 +65,7 @@ Any opinions, findings, and conclusions or recommendations expressed in this mat
 - Pinto, C., Gill, M., & Heron, E. A. (2019). Can artificial neural networks supplant the polygene risk score for risk prediction of complex disorders given very large sample sizes?. *arXiv preprint arXiv:1911.08996*.
 - Mamani, N. M. (2020). Machine Learning techniques and Polygenic Risk Score application to prediction genetic diseases. *ADCAIJ: Advances in Distributed Computing and Artificial Intelligence Journal*, 9(1), 5-14.
 - Badré, A., Zhang, L., Muchero, W., Reynolds, J. C., & Pan, C. (2020). Deep neural network improves the estimation of polygenic risk scores for breast cancer. *Journal of Human Genetics*, 1-11.
+- Yelmen, B., Decelle, A., Ongaro, L., Marnetto, D., Montinaro, F., Furtlehner, C., ... & Jay, F. (2019). Creating Artificial Human Genomes Using Generative Models. [[PDF]](https://hal.archives-ouvertes.fr/hal-02413942/document)
 
 <!-- TODO 
     description of project
