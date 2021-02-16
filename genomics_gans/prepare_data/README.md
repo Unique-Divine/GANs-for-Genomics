@@ -9,3 +9,4 @@ Since there were two laboratories that the rats were raised at, it made sense to
 
 TODO 
 - [ ] Move and clean up the VCF parsing code to this directory.
+- [ ] Verify that X_common_C and X_common_H have the same number of rows. If they differ, investigate the reason this happens. This may involve debugging the common_indices code. 
