@@ -7,3 +7,5 @@ The data originally comes in vcf format and is converted into tabular format wit
 
 Since there were two laboratories that the rats were raised at, it made sense to analyze the datasets grouped by laboratory in addition to the combined dataset in order to see if there was a large difference between the samples. 
 
+TODO 
+- [ ] Move and clean up the VCF parsing code to this directory.
