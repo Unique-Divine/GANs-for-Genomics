@@ -84,6 +84,7 @@ def save_common_Xs(group: str, data_path: str = DATA_PATH,
 
             if X_batch_idx >= maxIteration:
                 break
+            
     else: # group == "H"
         # Load common indices
         common_indices_path = os.path.join(

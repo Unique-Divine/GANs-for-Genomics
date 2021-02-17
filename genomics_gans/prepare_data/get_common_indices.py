@@ -5,6 +5,11 @@ import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 import time
+import os
+import sys
+
+sys.path.append("..")
+DATA_PATH = os.path.join("..", "data" )
 
 def getSNPNames(group="C", timeit=False):
     if group == "C":
@@ -87,7 +92,7 @@ def getCommonSNPIndices(group="C", save=False, verbose=True):
             pd.Series(indices).to_csv("data/H/common_indices_H.csv", index=False)
     return np.array(indices)
 
-def main (verbose=True):
+def main(verbose=True):
     """The Charles River and Harlan River datasets don't contain the same SNPs.
     This script finds the SNPs for which the two datasets overlap and saves the
     indices corresponding this overlap in two .csv files. After running this
