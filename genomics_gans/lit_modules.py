@@ -2,15 +2,21 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import numpy as np
+import matplotlib.pyplot as plt
 from typing import List, Tuple, Dict, Any, Union, Iterable
+try:
+    import genomics_gans
+except:
+    exec(open('__init__.py').read()) 
+    import genomics_gans
+from genomics_gans.data_modules import TabularDataset
 
 class LitFFNN(pl.LightningModule):
     # ----------------------------------
     # Initialize constants and NN architecture
     # ----------------------------------
     def __init__(self, network: nn.Module, train_set: TabularDataset, 
-                 val_set: TabularDataset, test_set: TabularDataset, 
-                 data_dir: str = data_path):
+                 val_set: TabularDataset, test_set: TabularDataset):
         """ Feed-Forward Neural Network System
         Args:
             X (np.ndarray): Feature matrix 
@@ -107,7 +113,8 @@ class LitFFNN(pl.LightningModule):
             self.optimizer.step() # update model weights
             train_loss += loss.data.item()
             if (idx % 10 == 0) and verbose:
-                print(f"epoch {epoch+1}/{n_epochs}, batch {idx}.")
+                print(f"epoch {self.epoch+1}/{self.n_epochs}, "
+                    + f"batch {idx}.")
         train_loss = train_loss / len(train_loader)
         return train_loss
     
