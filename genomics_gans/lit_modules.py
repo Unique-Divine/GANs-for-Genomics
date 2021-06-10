@@ -9,7 +9,7 @@ try:
 except:
     exec(open('__init__.py').read()) 
     import genomics_gans
-from genomics_gans.data_modules import TabularDataset
+from genomics_gans.prepare_data.data_modules import TabularDataset
 
 class LitFFNN(pl.LightningModule):
     # ----------------------------------
