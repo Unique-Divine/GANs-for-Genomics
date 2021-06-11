@@ -10,11 +10,9 @@ Multiple papers have shown that neural networks are generally less effective for
 2. **Extremely low number of training samples**: Deep neural nets need plenty of data, and in the case of genomics, we probably won't have plenty of relevant samples.
 3. **Datasets are often heavily imbalanced**: This is especially true for case-control predictions. Usually, you'll have a small number of cases and lots of controls. The phenotypes tend not to have an even spread.
 
-These challenges make training performant deep learning models an arduous task. I decided to try to alleviate some of the burden point 2 above: lacking input samples.  
+These challenges make training performant deep learning models an arduous task. I decided to try to alleviate some of the burden of having insufficient training samples.  
 
-**TLDR**: Here, I **research the effectiveness of generative adversarial networks (GANs) to simulate synthetic samples**. By doing so, I hope to create more plentiful training data, achieve higher performance on genomic predictions, and reach a greater understanding of the relevant loci in the genome.
-
-While the central aim of this project is to investigate the viability of neural networks to identify predictive variants in the genome, I place a specific focus on comparing neural networks with linear predictors. 
+**TLDR**: I **research the effectiveness of using generative adversarial networks (GANs) to simulate synthetic samples**. In doing so, I hope to create more plentiful training data, achieve higher performance on genomic predictions, and reach a greater understanding of the relevant loci in the genome. The central aim of this project is to investigate the viability of neural networks for identifying predictive variants in the genome.
 
 [ref]: #References-&-Acknowledgements
 
@@ -50,9 +48,6 @@ While the central aim of this project is to investigate the viability of neural 
 [gileta-genetic]: https://www.biorxiv.org/content/biorxiv/early/2018/09/10/412924.full.pdf
 
 <!-- Image from paper -->
-
-
-
 
 <!-- Experiments  -->
 
