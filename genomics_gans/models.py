@@ -3,6 +3,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
 from numpy import ndarray
+try:
+    import genomics_gans
+except:
+    exec(open('__init__.py').read()) 
+    import genomics_gans
 
 class FFNN(nn.Module):
     def __init__(self, X: ndarray, in_dropout=0.1, hidden_dropout=0.1):

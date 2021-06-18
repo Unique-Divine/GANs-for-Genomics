@@ -17,9 +17,7 @@ These challenges make training performant deep learning models an arduous task. 
 [ref]: #References-&-Acknowledgements
 
 
-## Dataset 
-
-<!-- insert link -->
+## Dataset Description
 
 **Samples**: Sprague Dawley rats from GWAS
   - sample size: 4106 rats
@@ -38,7 +36,7 @@ These challenges make training performant deep learning models an arduous task. 
   - Persistent motivation by reward-related cues, sometimes despite non-reinforcement
   - Susceptible to addiction-related behaviors
 
-#### Data source: 
+#### Data Source: 
 - For more information on the data used in this analysis, refer to the following paper:  
   > Gileta, A. et al. (2018). Genetic characterization of outbred Sprague Dawley rats and utility for genome-wide association studies. *bioRxiv*, 412924. [[paper]][gileta-genetic]
 - The data is available for download in [variant call format (VCF)][vcf-wiki] on [Alex Gileta's Github][gileta-github]. 
