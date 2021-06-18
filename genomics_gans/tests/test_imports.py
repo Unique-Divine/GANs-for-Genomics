@@ -1,4 +1,10 @@
 import os, sys
+try: 
+    import genomics_gans
+except:
+    exec(open('__init__.py').read())
+    import genomics_gans
+    print("complete")
 
 class TestImports:
 

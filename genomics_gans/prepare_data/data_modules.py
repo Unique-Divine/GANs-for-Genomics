@@ -82,6 +82,9 @@ class SpragueDawleyDM(pl.LightningDataModule):
                  test_set: TabularDataset, batch_size: int = 50):
         super().__init__()
         self.batch_size = batch_size
+        self.train_set = train_set
+        self.val_set = val_set
+        self.test_set = test_set
         # TODO? More to this module
 
     def prepare_data(self):

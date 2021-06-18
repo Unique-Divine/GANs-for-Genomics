@@ -16,7 +16,7 @@ def access_root_dir(depth = 1):
 
     sys.path.append(rel_path) 
 
-access_root_dir(depth=0)
+access_root_dir(depth=1)
 
 import genomics_gans
 import warnings
