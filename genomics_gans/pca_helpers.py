@@ -4,6 +4,11 @@ import pandas as pd
 from sklearn import decomposition
 from numpy import linalg
 from typing import Union, Iterable
+try:
+    import genomics_gans
+except:
+    exec(open('__init__.py').read()) 
+    import genomics_gans
 
 def PCA_decomposition(X: np.ndarray, n: int = None):
     """Perform PCA decomposition on X.
